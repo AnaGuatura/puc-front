@@ -167,8 +167,6 @@ export default Vue.extend({
         a {
           text-decoration: none;
           color: inherit;
-        }
-        button {
           margin-right: 10%;
         }
       }
