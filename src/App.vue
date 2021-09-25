@@ -72,10 +72,6 @@ export default Vue.extend({
   .v-btn__content {
     font-weight: bold;
     color: #fb8a69 !important;
-    :hover {
-      color: #fff !important;
-      background-color: #fb8a69 !important;
-    }
   }
 
     hr {

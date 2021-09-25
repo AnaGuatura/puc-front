@@ -4,11 +4,13 @@
       <section class="login__form">
         <section>
           <v-text-field
+            dense
             label="E-mail"
             v-model="user.email"
             solo
           ></v-text-field>
           <v-text-field
+            dense
             label="Senha"
             v-model="user.password"
             type="password"

@@ -14,3 +14,16 @@ export interface Credentials {
     email: string;
     password: string;
 }
+
+export interface Technology {
+    id: string;
+    area: string;
+    name: string;
+}
+
+export interface Skill {
+    user: string;
+    technology: Technology;
+    price?: number | null;
+    experience_time?: number | null;
+}

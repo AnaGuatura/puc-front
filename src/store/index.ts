@@ -10,6 +10,7 @@ export default new Vuex.Store({
     userCreated: {},
     areas: [],
     payments: [],
+    technologies: [],
   },
   mutations: {
     setUserAuthentication(state, isAuthenticated) {
@@ -23,6 +24,9 @@ export default new Vuex.Store({
     },
     setPayments(state, payments) {
       state.payments = payments;
+    },
+    setTechnologies(state, technologies) {
+      state.technologies = technologies;
     },
   },
   actions: {
@@ -67,11 +71,40 @@ export default new Vuex.Store({
         commit('setPayments', []);
       });
     },
+    async getTechnologies({ commit }) {
+      const url = 'http://localhost:3000';
+      return axios.get(`${url}/technologies`).then((response) => {
+        if (response) {
+          commit('setTechnologies', response.data);
+        }
+      }).catch(() => {
+        commit('setTechnologies', []);
+      });
+    },
+    async createTechnologies({ commit, state }, technologies) {
+      const url = 'http://localhost:3000';
+      return axios.post(`${url}/technologies`, technologies).then((response) => {
+        if (response.data) commit('setTechnologies', response.data);
+      }).catch(() => {
+        commit('setTechnologies', state.technologies);
+      });
+    },
+    async createSkills({ commit, state }, skills) {
+      const url = 'http://localhost:3000';
+      return axios.post(`${url}/technologies`, skills).then((response) => {
+        if (response.data) {
+          console.log('adicionou as skills');
+        }
+      }).catch(() => {
+        commit('setTechnologies', state.technologies);
+      });
+    },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,
     userCreated: (state) => state.userCreated,
     areas: (state) => state.areas,
     payments: (state) => state.payments,
+    technologies: (state) => state.technologies,
   },
 });
