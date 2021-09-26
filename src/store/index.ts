@@ -11,8 +11,13 @@ export default new Vuex.Store({
     areas: [],
     payments: [],
     technologies: [],
+    error: '',
+    user: {},
   },
   mutations: {
+    setError(state, message) {
+      state.error = message;
+    },
     setUserAuthentication(state, isAuthenticated) {
       state.isAuthenticated = isAuthenticated;
     },
@@ -28,17 +33,22 @@ export default new Vuex.Store({
     setTechnologies(state, technologies) {
       state.technologies = technologies;
     },
+    setUser(state, user) {
+      state.user = user;
+    },
   },
   actions: {
     async register({ commit }, user) {
       const url = 'http://localhost:3000';
-      return axios.post(`${url}/users`, user).then((response) => {
-        if (response) {
-          commit('setUserCreated', response);
-        }
-      }).catch(() => {
-        commit('setUserCreated', {});
-      });
+      return axios.post(`${url}/users`, user)
+        .then((response) => {
+          if (response.data) {
+            commit('setUserCreated', response.data);
+          }
+        })
+        .catch((e) => {
+          throw new Error(e.response.data.error);
+        });
     },
     async login({ commit }, credentials) {
       const url = 'http://localhost:3000';
@@ -46,9 +56,11 @@ export default new Vuex.Store({
         if (response) {
           commit('setUserAuthentication', true);
           localStorage.setItem('token', JSON.stringify(response.data));
+          localStorage.setItem('email', JSON.stringify(credentials.email));
         }
-      }).catch(() => {
+      }).catch((e) => {
         commit('setUserAuthentication', false);
+        throw new Error(e.response.data.error);
       });
     },
     async getAreas({ commit }) {
@@ -57,8 +69,9 @@ export default new Vuex.Store({
         if (response) {
           commit('setAreas', response.data);
         }
-      }).catch(() => {
+      }).catch((e) => {
         commit('setAreas', []);
+        throw new Error(e.response.data.error);
       });
     },
     async getPayments({ commit }) {
@@ -67,8 +80,9 @@ export default new Vuex.Store({
         if (response) {
           commit('setPayments', response.data);
         }
-      }).catch(() => {
+      }).catch((e) => {
         commit('setPayments', []);
+        throw new Error(e.response.data.error);
       });
     },
     async getTechnologies({ commit }) {
@@ -77,26 +91,46 @@ export default new Vuex.Store({
         if (response) {
           commit('setTechnologies', response.data);
         }
-      }).catch(() => {
+      }).catch((e) => {
         commit('setTechnologies', []);
+        throw new Error(e.response.data.error);
       });
     },
     async createTechnologies({ commit, state }, technologies) {
       const url = 'http://localhost:3000';
       return axios.post(`${url}/technologies`, technologies).then((response) => {
         if (response.data) commit('setTechnologies', response.data);
-      }).catch(() => {
+      }).catch((e) => {
         commit('setTechnologies', state.technologies);
+        throw new Error(e.response.data.error);
       });
     },
-    async createSkills({ commit, state }, skills) {
+    async createSkills({ commit }, skills) {
       const url = 'http://localhost:3000';
-      return axios.post(`${url}/technologies`, skills).then((response) => {
+      return axios.post(`${url}/skills`, skills).catch((e) => {
+        throw new Error(e.response.data.error);
+      });
+    },
+    async createPayments({ commit }, payments) {
+      const url = 'http://localhost:3000';
+      return axios.post(`${url}/payments`, payments).catch((e) => {
+        throw new Error(e.response.data.error);
+      });
+    },
+    async getUser({ commit }, email) {
+      const url = 'http://localhost:3000';
+      const token = JSON.parse(localStorage.getItem('token'));
+      return axios.get(`${url}/users/${email}`, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      }).then((response) => {
         if (response.data) {
-          console.log('adicionou as skills');
+          commit('setUser', response.data);
+          localStorage.setItem('user', JSON.stringify(response.data));
         }
-      }).catch(() => {
-        commit('setTechnologies', state.technologies);
+      }).catch((e) => {
+        throw new Error(e.response.data.error);
       });
     },
   },
@@ -106,5 +140,6 @@ export default new Vuex.Store({
     areas: (state) => state.areas,
     payments: (state) => state.payments,
     technologies: (state) => state.technologies,
+    user: (state) => state.user,
   },
 });

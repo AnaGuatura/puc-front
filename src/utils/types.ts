@@ -16,9 +16,10 @@ export interface Credentials {
 }
 
 export interface Technology {
-    id: string;
+    id?: string;
     area: string;
     name: string;
+    other?: string;
 }
 
 export interface Skill {
@@ -26,4 +27,16 @@ export interface Skill {
     technology: Technology;
     price?: number | null;
     experience_time?: number | null;
+}
+
+export interface Skills {
+    user: string;
+    technology: string;
+    price?: number | null;
+    experience_time?: number | null;
+}
+
+export interface Payment {
+    user: string;
+    payment: string;
 }

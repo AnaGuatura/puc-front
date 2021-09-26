@@ -5,49 +5,63 @@
         <section>
           <v-text-field
             dense
-              label="Nome"
-              v-model="user.name"
-              solo
-            ></v-text-field>
+            label="Nome"
+            v-model="user.name"
+            solo
+            required
+            :rules="[rules.required]"
+          ></v-text-field>
+          <v-text-field
+            dense
+            label="Sobrenome"
+            v-model="user.lastname"
+            solo
+            required
+            :rules="[rules.required]"
+          ></v-text-field>
+          <v-text-field
+            dense
+            label="E-mail"
+            v-model="user.email"
+            :rules="[rules.required, rules.email]"
+            solo
+            required
+          ></v-text-field>
+          <v-text-field
+            dense
+            label="Senha"
+            v-model="user.password"
+            type="password"
+            solo
+            required
+            :rules="[rules.required]"
+          ></v-text-field>
+          <v-text-field
+            dense
+            label="Telefone"
+            v-model="user.phone"
+            solo
+            required
+            :rules="[rules.required]"
+          ></v-text-field>
             <v-text-field
-              dense
-              label="Sobrenome"
-              v-model="user.lastname"
-              solo
-            ></v-text-field>
-            <v-text-field
-              dense
-              label="E-mail"
-              v-model="user.email"
-              solo
-            ></v-text-field>
-            <v-text-field
-              dense
-              label="Senha"
-              v-model="user.password"
-              type="password"
-              solo
-            ></v-text-field>
-             <v-text-field
-              dense
-              label="Telefone"
-              v-model="user.phone"
-              solo
-            ></v-text-field>
-             <v-text-field
-              dense
-              label="Data de Nascimento"
-              v-model="user.birthday"
-              solo
-            ></v-text-field>
+            dense
+            label="Data de Nascimento"
+            v-model="user.birthday"
+            solo
+            required
+            :rules="[rules.required]"
+          ></v-text-field>
 
-            <div class="register__usertype">
-              <span>Você deseja ser um usuário:</span>
-              <v-radio-group
-                class="register__checkbox-usertype"
-                v-model="user.role"
-                row
-              >
+          <div class="register__usertype">
+            <span>Você deseja ser um usuário:</span>
+            <v-radio-group
+              class="register__checkbox-usertype"
+              v-model="user.role"
+              row
+              required
+              :rules="[rules.required]"
+            >
               <v-radio
                   label="Mentor"
                   value="mentor"
@@ -66,16 +80,18 @@
                 <v-textarea
                   dense
                   solo
-                  name="input-7-4"
                   label="Escreva uma breve descrição sobre você"
+                  required
+                  :rules="[rules.required]"
                 ></v-textarea>
 
                 <label>Experiências</label>
                 <v-textarea
                   dense
                   solo
-                  name="input-7-4"
                   label="Fale brevemente sobre suas experiências profissionais"
+                  required
+                  :rules="[rules.required]"
                 ></v-textarea>
 
                 <div class="register__skill">
@@ -98,12 +114,13 @@
                         item-value="id"
                         label="Área"
                         solo
-                        @change="updateTechnologies"
+                        required
+                        :rules="[rules.required]"
                       ></v-select>
                       <v-autocomplete
                         dense
                         v-model="skill.technology.name"
-                        :items="technologies.filter((f) => f.area === skill.technology.area)"
+                        :items="listTechnologies.filter((f) => f.area === skill.technology.area)"
                         :loading="false"
                         color="white"
                         hide-no-data
@@ -113,41 +130,57 @@
                         item-value="id"
                         solo
                         @change="verifyIfOther"
+                        required
+                        :rules="[rules.required]"
                       ></v-autocomplete>
                     </div>
                     <v-text-field v-if="insertOther"
                       dense
-                      v-model="skill.technology.name"
+                      v-model="skill.technology.other"
                       label="Tecnologia"
                       solo
+                      required
+                      :rules="[rules.required]"
                     ></v-text-field>
                     <div class="skill__info">
                       <v-text-field
                         dense
+                        type="number"
                         v-model="skill.experience_time"
                         label="Tempo de Experiência"
                         filled
                         solo
+                        required
+                        :rules="[rules.required]"
                       ></v-text-field>
                       <v-text-field
                         dense
+                        type="number"
+                        prefix="R$"
                         v-model="skill.price"
                         label="Preço médio por mentoria de 1h"
                         filled
                         solo
+                        required
+                        :rules="[rules.required]"
                       ></v-text-field>
                     </div>
                   </div>
 
                   <div class="payments">
                     <label>Formas de Pagamento Aceitas</label>
+                    <v-container>
                       <div v-for="payment in payments" :key="payment.id">
                         <v-checkbox
                           color="#fb8a69"
-                          v-model="payments"
+                          v-model="paymentsMethods"
                           :label="payment.type"
+                          :value="payment.id"
+                          required
+                         :rules="[rules.required]"
                         ></v-checkbox>
                       </div>
+                    </v-container>
                   </div>
                 </div>
               </div>
@@ -160,6 +193,8 @@
             v-model="hasAccepted"
             color="#fb8a69"
             label="Aceito as condições e os termos de uso."
+            required
+            :rules="[rules.required]"
           ></v-checkbox>
         </article>
       </div>
@@ -171,18 +206,44 @@
           Cadastrar
         </v-btn>
       </footer>
+      <div class="register__error">
+        <v-alert
+          v-if="error !== ''"
+          dismissible
+          color="#ef4054"
+          border="left"
+          elevation="2"
+          colored-border
+          icon="mdi-alert-circle"
+        >
+          {{ error }}
+        </v-alert>
+      </div>
     </main>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 
-import { User, Technology, Skill } from '../utils/types';
+import {
+  User,
+  Technology,
+  Skill,
+  Skills,
+  Payment,
+} from '../utils/types';
 
 export default Vue.extend({
   name: 'register',
   data: () => ({
+    rules: {
+      required: (value: string) => !!value || 'Campo obrigatório.',
+      email: (value: string) => {
+        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return pattern.test(value) || 'E-mail inválido.';
+      },
+    },
     user: {
       name: '',
       lastname: '',
@@ -199,12 +260,15 @@ export default Vue.extend({
     skills: [] as Array<Skill>,
     insertOther: false,
     paymentsMethods: [],
+    listTechnologies: [] as Array<Technology>,
+    error: '',
   }),
   computed: {
     ...mapGetters(['isAuthenticated', 'userCreated', 'areas', 'payments', 'technologies']),
   },
   methods: {
-    ...mapActions(['register', 'login', 'getAreas', 'getPayments', 'getTechnologies', 'createTechnologies', 'createSkills']),
+    ...mapActions(['register', 'login', 'getAreas', 'getPayments', 'getTechnologies', 'createTechnologies', 'createSkills', 'createPayments']),
+    ...mapMutations(['setTechnologies']),
     validationFields(): boolean {
       const isValid = true;
 
@@ -216,43 +280,88 @@ export default Vue.extend({
       if (this.validationFields()) {
         this.loading = true;
 
-        await this.register(this.user);
+        await this.register(this.user).catch((error) => {
+          this.loading = false;
+          this.error = error;
+        });
 
-        if (this.userCreated) {
+        if (this.userCreated.id) {
           if (this.user.role === 'mentor') {
-            const hasNewTechnologies = this.technologies.filter((t) => !t.id);
-
-            if (hasNewTechnologies) {
-              const technologies = await this.createTechnologies(hasNewTechnologies);
-              if (technologies) {
-                await this.createSkills(this.skills);
+            const others = this.skills.reduce((acc, curr) => {
+              if (curr.technology.other) {
+                acc.push({
+                  name: curr.technology.other,
+                  area: curr.technology.area,
+                });
               }
+              return acc;
+            }, [] as Array<Technology>);
+
+            if (others.length > 0) {
+              this.createTechnologies({ technologies: others }).catch((error) => {
+                this.loading = false;
+                this.error = error;
+                // deletar o usuário
+              });
+            }
+
+            let skills = [] as Array<Skills>;
+            this.technologies.forEach((t: Technology) => {
+              skills = this.skills.map((skill) => {
+                const s = skill;
+                s.user = this.userCreated.id;
+                if (s.technology.area === t.area && s.technology.name === t.id) {
+                  s.technology = t.id;
+                }
+                return s;
+              });
+            });
+
+            await this.createSkills({ skills }).catch((error) => {
+              this.loading = false;
+              this.error = error;
+              // deleta o usuário e a tecnologia cadastrada
+            });
+
+            let payments = [];
+            payments = this.paymentsMethods.reduce((acc, curr) => {
+              acc.push({
+                user: this.userCreated.id,
+                payment: curr,
+              });
+              return acc;
+            }, [] as Array<Payment>);
+            await this.createPayments({ payments }).catch((error) => {
+              this.loading = false;
+              this.error = error;
+              // deleta o usuário, atecnologia cadastrada e as skills
+            });
+          }
+
+          if (this.error !== '') {
+            await this.login({
+              email: this.user.email,
+              password: this.user.password,
+            });
+
+            if (this.isAuthenticated) {
+              this.$router.push({ path: '/home', params: { type: this.user.role } });
             }
           }
-
-          await this.login({
-            email: this.user.email,
-            password: this.user.password,
-          });
-
-          if (this.isAuthenticated) {
-            this.$router.push({ path: '/home', params: { type: this.user.role } });
-          }
-        } else {
-          this.loading = false;
         }
       } else {
         this.loading = false;
       }
     },
-    verifyIfOther(value: Technology) {
-      if (value.id === 'OUTRA') {
+    verifyIfOther(value: string) {
+      this.insertOther = false;
+      if (value === '0') {
         this.insertOther = true;
-      } else {
-        this.insertOther = false;
       }
     },
     addSkill() {
+      this.insertOther = false;
+
       const skill = {
         user: '',
         technology: {
@@ -267,17 +376,41 @@ export default Vue.extend({
     },
     removeSkill(index: number) {
       this.skills.splice(index, 1);
-
-      console.log(this.skills);
-    },
-    updateTechnologies() {
-      this.technologies.push({ id: '', name: 'OUTRA', area: '' });
     },
   },
   created() {
     this.getAreas();
     this.getPayments();
     this.getTechnologies();
+  },
+  watch: {
+    technologies: {
+      handler(curr: Array<Technology>) {
+        if (curr.length > 0) {
+          const others = [
+            {
+              id: '0',
+              area: '1c3a8768-b46a-4e20-9e90-a609210173d5',
+              name: 'OUTRA',
+            },
+            {
+              id: '0',
+              area: '443eba90-15f7-4113-8e6d-8836489df903',
+              name: 'OUTRA',
+            },
+            {
+              id: '0',
+              area: 'c0d2b142-f40f-4a36-8f74-6f48d5eb22a9',
+              name: 'OUTRA',
+            },
+          ] as Array<Technology>;
+
+          this.listTechnologies = [...curr, ...others];
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
   },
 });
 </script>
@@ -287,6 +420,12 @@ export default Vue.extend({
    padding: 5%;
    font-family: 'Raleway', sans-serif;
    width: 100%;
+   &__error {
+    padding-top: 5%;
+    position: fixed;
+    bottom: 0px;
+    width: 90%;
+   }
    &__form {
      margin-top: 2%;
      display: flex;
@@ -320,6 +459,7 @@ export default Vue.extend({
      margin-top: 2%;
      display: flex;
      justify-content: flex-end;
+     z-index: 10;
    }
    &__skill{
      display: flex;
@@ -369,4 +509,12 @@ export default Vue.extend({
      }
    }
  }
+
+ .skill__tech > div {
+    width: 45% !important;
+  }
+
+  .skill__info > div {
+    width: 45% !important;
+  }
 </style>

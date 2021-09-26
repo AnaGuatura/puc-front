@@ -79,6 +79,7 @@ export default Vue.extend({
         if (curr) {
           this.setUserAuthentication(false);
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
       },
       deep: true,
