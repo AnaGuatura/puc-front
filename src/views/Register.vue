@@ -286,7 +286,7 @@ export default Vue.extend({
         });
 
         if (this.userCreated.id) {
-          if (this.user.role === 'mentor') {
+          if (this.userCreated.role === 'mentor') {
             const others = this.skills.reduce((acc, curr) => {
               if (curr.technology.other) {
                 acc.push({
@@ -298,11 +298,13 @@ export default Vue.extend({
             }, [] as Array<Technology>);
 
             if (others.length > 0) {
-              this.createTechnologies({ technologies: others }).catch((error) => {
+              const tech = await this.createTechnologies({ technologies: others })
+                .catch((error) => error);
+              if (tech.error) {
                 this.loading = false;
-                this.error = error;
-                // deletar o usuário
-              });
+                this.error = tech.message;
+                return;
+              }
             }
 
             let skills = [] as Array<Skills>;
@@ -317,11 +319,13 @@ export default Vue.extend({
               });
             });
 
-            await this.createSkills({ skills }).catch((error) => {
+            const skill = await this.createSkills({ skills }).catch((error) => error);
+
+            if (skill.error) {
               this.loading = false;
-              this.error = error;
-              // deleta o usuário e a tecnologia cadastrada
-            });
+              this.error = skill.message;
+              return;
+            }
 
             let payments = [];
             payments = this.paymentsMethods.reduce((acc, curr) => {
@@ -331,11 +335,14 @@ export default Vue.extend({
               });
               return acc;
             }, [] as Array<Payment>);
-            await this.createPayments({ payments }).catch((error) => {
+
+            const payment = await this.createPayments({ payments }).catch((error) => error);
+
+            if (payment.error) {
               this.loading = false;
-              this.error = error;
-              // deleta o usuário, atecnologia cadastrada e as skills
-            });
+              this.error = payment.message;
+              return;
+            }
           }
 
           if (this.error !== '') {

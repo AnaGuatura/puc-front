@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <div class="home__content" v-if="role === 'admin'">Em desenvolvimento.</div>
-    <div class="home__content" v-else-if="role === 'mentor'">Em desenvolvimento.</div>
+    <div class="home__content" v-if="user.role === 'admin'">Em desenvolvimento.</div>
+    <div class="home__content" v-else-if="user.role === 'mentor'">Em desenvolvimento.</div>
     <div class="home__content" v-else></div>
   </div>
 </template>
@@ -22,19 +22,14 @@ export default Vue.extend({
   methods: {
     ...mapActions(['getUser']),
   },
-  async mounted() {
-    this.loading = true;
-    const email = JSON.parse(localStorage.getItem('email'));
-    console.log(email);
-    await this.getUser(email?.trim());
-    if (this.user) this.role = this.user.role;
-    this.loading = false;
-  },
 });
 </script>
 
 <style lang="scss" scoped>
 .home {
   padding: 5%;
+  .home__content {
+    text-align: center;
+  }
 }
 </style>

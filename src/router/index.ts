@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
-import Home from '../views/Home.vue';
+import Feedback from '../views/Feedback.vue';
+import Profile from '../views/Profile.vue';
+import Account from '../views/Account.vue';
 import store from '../store';
 
 Vue.use(VueRouter);
@@ -38,6 +40,20 @@ const routes: Array<RouteConfig> = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue'),
   },
+  {
+    path: '/profile',
+    component: Profile,
+    children: [
+      {
+        path: '/feedback',
+        component: Feedback,
+      },
+      {
+        path: '/account',
+        component: Account,
+      },
+    ],
+  },
 ];
 
 const router = new VueRouter({
@@ -48,6 +64,12 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+
+  if (token && user) {
+    store.commit('setUser', JSON.parse(user));
+    store.commit('setUserAuthentication', true);
+  }
 
   if (to.name === 'Landing' || to.name === 'Register') {
     next();

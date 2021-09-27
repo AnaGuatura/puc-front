@@ -32,7 +32,7 @@
               Home
             </li>
           </router-link>
-          <router-link :to="'profile'">
+          <router-link :to="'account'">
             <li>
               Perfil
             </li>

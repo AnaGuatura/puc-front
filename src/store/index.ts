@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import axios from 'axios';
+import api from './api';
 
 Vue.use(Vuex);
 
@@ -39,8 +39,7 @@ export default new Vuex.Store({
   },
   actions: {
     async register({ commit }, user) {
-      const url = 'http://localhost:3000';
-      return axios.post(`${url}/users`, user)
+      return api.post('/users', user)
         .then((response) => {
           if (response.data) {
             commit('setUserCreated', response.data);
@@ -51,21 +50,21 @@ export default new Vuex.Store({
         });
     },
     async login({ commit }, credentials) {
-      const url = 'http://localhost:3000';
-      return axios.post(`${url}/login`, credentials).then((response) => {
+      return api.post('/login', credentials).then((response) => {
         if (response) {
           commit('setUserAuthentication', true);
-          localStorage.setItem('token', JSON.stringify(response.data));
-          localStorage.setItem('email', JSON.stringify(credentials.email));
+          commit('setUser', response.data.user);
+          localStorage.setItem('token', JSON.stringify(response.data.token));
+          localStorage.setItem('user', JSON.stringify(response.data.user));
         }
       }).catch((e) => {
         commit('setUserAuthentication', false);
+        commit('setUser', {});
         throw new Error(e.response.data.error);
       });
     },
     async getAreas({ commit }) {
-      const url = 'http://localhost:3000';
-      return axios.get(`${url}/areas`).then((response) => {
+      return api.get('/areas').then((response) => {
         if (response) {
           commit('setAreas', response.data);
         }
@@ -75,8 +74,7 @@ export default new Vuex.Store({
       });
     },
     async getPayments({ commit }) {
-      const url = 'http://localhost:3000';
-      return axios.get(`${url}/payments`).then((response) => {
+      return api.get('/payments').then((response) => {
         if (response) {
           commit('setPayments', response.data);
         }
@@ -86,8 +84,7 @@ export default new Vuex.Store({
       });
     },
     async getTechnologies({ commit }) {
-      const url = 'http://localhost:3000';
-      return axios.get(`${url}/technologies`).then((response) => {
+      return api.get('/technologies').then((response) => {
         if (response) {
           commit('setTechnologies', response.data);
         }
@@ -97,40 +94,34 @@ export default new Vuex.Store({
       });
     },
     async createTechnologies({ commit, state }, technologies) {
-      const url = 'http://localhost:3000';
-      return axios.post(`${url}/technologies`, technologies).then((response) => {
-        if (response.data) commit('setTechnologies', response.data);
-      }).catch((e) => {
-        commit('setTechnologies', state.technologies);
-        throw new Error(e.response.data.error);
+      return new Promise((resolve, reject) => {
+        api.post('/technologies', technologies).then((response) => {
+          if (response.data) {
+            commit('setTechnologies', response.data);
+            resolve(response.data);
+          }
+        }).catch((e) => {
+          commit('setTechnologies', state.technologies);
+          reject(e.response.data);
+        });
       });
     },
     async createSkills({ commit }, skills) {
-      const url = 'http://localhost:3000';
-      return axios.post(`${url}/skills`, skills).catch((e) => {
-        throw new Error(e.response.data.error);
+      return new Promise((resolve, reject) => {
+        api.post('/skills', skills).then((response) => {
+          if (response.data) resolve(response.data);
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
       });
     },
     async createPayments({ commit }, payments) {
-      const url = 'http://localhost:3000';
-      return axios.post(`${url}/payments`, payments).catch((e) => {
-        throw new Error(e.response.data.error);
-      });
-    },
-    async getUser({ commit }, email) {
-      const url = 'http://localhost:3000';
-      const token = JSON.parse(localStorage.getItem('token'));
-      return axios.get(`${url}/users/${email}`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      }).then((response) => {
-        if (response.data) {
-          commit('setUser', response.data);
-          localStorage.setItem('user', JSON.stringify(response.data));
-        }
-      }).catch((e) => {
-        throw new Error(e.response.data.error);
+      return new Promise((resolve, reject) => {
+        api.post('/skills', payments).then((response) => {
+          if (response.data) resolve(response.data);
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
       });
     },
   },
