@@ -18,12 +18,14 @@
           ></v-text-field>
           <footer>
             <v-btn
+            color="orange lighten-2"
               depressed
               :loading="loading"
               @click="authenticate">
               Login
             </v-btn>
             <v-btn
+            color="orange lighten-2"
               depressed
               disabled
               @click="login">

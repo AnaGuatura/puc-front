@@ -124,6 +124,17 @@ export default new Vuex.Store({
         });
       });
     },
+    async searchMentors({ commit }, id) {
+      const token = JSON.parse(localStorage.getItem('token'));
+      return new Promise((resolve, reject) => {
+        api.get(`/users/technology?id=${id}`, { headers: { Authorization: `Bearer ${token}` } })
+          .then((response) => {
+            if (response.data) resolve(response.data);
+          }).catch((e) => {
+            reject(e.response.data.error);
+          });
+      });
+    },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,

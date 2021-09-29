@@ -69,11 +69,10 @@ export default Vue.extend({
   .theme--light.v-application {
     background-color: #fcfcfc !important;
   }
-  .v-btn__content {
-    font-weight: bold;
-    color: #fb8a69 !important;
-  }
 
+  .theme--light.v-btn {
+      color: white;
+  }
     hr {
     margin: 1.5em auto;
     position: relative;

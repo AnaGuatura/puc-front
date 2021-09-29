@@ -9,12 +9,12 @@
         </p>
         <section class="landing__cta-buttons">
            <router-link :to="'register'">
-            <v-btn depressed>
+            <v-btn color="orange lighten-2" depressed>
               Inscreva-se
             </v-btn>
           </router-link>
           <router-link :to="'login'">
-            <v-btn depressed :scroll-to="'#about'">
+            <v-btn color="orange lighten-2" depressed :scroll-to="'#about'">
               O que fazemos?
             </v-btn>
           </router-link>

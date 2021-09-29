@@ -40,3 +40,8 @@ export interface Payment {
     user: string;
     payment: string;
 }
+
+export interface Area {
+    id: string;
+    name: string;
+}
