@@ -1,5 +1,5 @@
 <template>
- <main>
+  <main>
     Em desenvolvimento.
   </main>
 </template>
@@ -8,13 +8,13 @@
 import Vue from 'vue';
 
 export default Vue.extend({
-  name: 'feedback',
+  name: 'users',
 });
 </script>
 
 <style lang="scss" scoped>
-  main {
-    padding: 5%;
-    text-align: center;
-  }
+    main {
+        padding: 5%;
+        text-align: center;
+    }
 </style>

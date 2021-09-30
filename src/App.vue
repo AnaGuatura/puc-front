@@ -71,7 +71,7 @@ export default Vue.extend({
   }
 
   .theme--light.v-btn {
-      color: white;
+      color: white !important;
   }
     hr {
     margin: 1.5em auto;

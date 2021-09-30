@@ -42,15 +42,15 @@ export default Vue.extend({
         },
         {
           name: 'Feedbacks',
-          path: '',
+          path: '/feedback',
         },
         {
           name: 'Usuários',
-          path: '',
+          path: '/users',
         },
         {
           name: 'Tecnologias',
-          path: '',
+          path: '/technologies',
         },
       ],
       mentor: [
@@ -60,15 +60,11 @@ export default Vue.extend({
         },
         {
           name: 'Mentorias',
-          path: '',
+          path: '/mentoring',
         },
         {
           name: 'Feedbacks',
-          path: '',
-        },
-        {
-          name: 'Agenda',
-          path: '',
+          path: '/feedback',
         },
       ],
       mentorado: [
@@ -78,11 +74,11 @@ export default Vue.extend({
         },
         {
           name: 'Mentorias',
-          path: '',
+          path: '/mentoring',
         },
         {
           name: 'Feedbacks',
-          path: '',
+          path: '/feedback',
         },
       ],
     },

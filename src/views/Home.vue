@@ -31,7 +31,6 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .home {
-  padding: 5%;
   .home__content {
     text-align: center;
   }

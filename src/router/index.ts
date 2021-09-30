@@ -3,6 +3,9 @@ import VueRouter, { RouteConfig } from 'vue-router';
 import Feedback from '../views/Feedback.vue';
 import Profile from '../views/Profile.vue';
 import Account from '../views/Account.vue';
+import Mentoring from '../views/Mentoring.vue';
+import User from '../views/Users.vue';
+import Technologies from '../views/Technologies.vue';
 import store from '../store';
 
 Vue.use(VueRouter);
@@ -51,6 +54,18 @@ const routes: Array<RouteConfig> = [
       {
         path: '/account',
         component: Account,
+      },
+      {
+        path: '/mentoring',
+        component: Mentoring,
+      },
+      {
+        path: '/users',
+        component: User,
+      },
+      {
+        path: '/technologies',
+        component: Technologies,
       },
     ],
   },

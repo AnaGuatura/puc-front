@@ -13,19 +13,23 @@
             dense
             label="Senha"
             v-model="user.password"
-            type="password"
+            :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="show ? 'text' : 'password'"
+            @click:append="show = !show"
             solo
           ></v-text-field>
           <footer>
             <v-btn
-            color="orange lighten-2"
+              dense
+              color="orange lighten-2"
               depressed
               :loading="loading"
               @click="authenticate">
               Login
             </v-btn>
             <v-btn
-            color="orange lighten-2"
+              dense
+              color="orange lighten-2"
               depressed
               disabled
               @click="login">
@@ -55,6 +59,7 @@ export default Vue.extend({
       password: '',
     } as Credentials,
     loading: false,
+    show: false,
   }),
   computed: {
     ...mapGetters(['isAuthenticated']),

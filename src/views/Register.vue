@@ -78,15 +78,17 @@
               <div class="mentor">
                 <label>Sobre você</label>
                 <v-textarea
+                  v-model="user.about_user_description"
                   dense
                   solo
-                  label="Escreva uma breve descrição sobre você"
+                  label="Seu texto de apresentação na plataforma"
                   required
                   :rules="[rules.required]"
                 ></v-textarea>
 
                 <label>Experiências</label>
                 <v-textarea
+                  v-model="user.experiences_description"
                   dense
                   solo
                   label="Fale brevemente sobre suas experiências profissionais"

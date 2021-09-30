@@ -124,10 +124,10 @@ export default new Vuex.Store({
         });
       });
     },
-    async searchMentors({ commit }, id) {
+    async searchMentors({ commit }, info) {
       const token = JSON.parse(localStorage.getItem('token'));
       return new Promise((resolve, reject) => {
-        api.get(`/users/technology?id=${id}`, { headers: { Authorization: `Bearer ${token}` } })
+        api.get(`/users/technology?id=${info.id}&experience=${info.experience}&price=${info.price}`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
             if (response.data) resolve(response.data);
           }).catch((e) => {

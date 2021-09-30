@@ -1,44 +1,74 @@
 <template>
   <section class="search">
     <div class="search__options">
-      <v-select
-        dense
-        v-model="selectedArea"
-        :items="areas"
-        item-text="name"
-        label="Áreas"
-        return-object
-        solo
-      ></v-select>
-      <v-autocomplete
-        dense
-        v-model="selectedTechnology"
-        :items="technologies.filter((t) => t.area === selectedArea.id)"
-        :loading="false"
-        :disabled="!technologies.filter((t) => t.area === selectedArea.id).length"
-        color="white"
-        hide-no-data
-        hide-selected
-        item-text="name"
-        label="Technologia"
-        item-value="id"
-        solo
-        return-object
-      ></v-autocomplete>
-      <v-btn
-        depressed
-        color="orange lighten-2"
-        :loading="loading"
-        @click="search">
-        Pesquisar
-      </v-btn>
+      <div class="options__row">
+        <label>Área de Atuação</label>
+        <v-select
+          dense
+          v-model="selectedArea"
+          :items="areas"
+          item-text="name"
+          label="Áreas"
+          return-object
+          solo
+        ></v-select>
+        <label>Tecnologia</label>
+        <v-autocomplete
+          dense
+          v-model="selectedTechnology"
+          :items="technologies.filter((t) => t.area === selectedArea.id)"
+          :disabled="!technologies.filter((t) => t.area === selectedArea.id).length"
+          color="white"
+          hide-no-data
+          hide-selected
+          item-text="name"
+          label="Technologia"
+          item-value="id"
+          solo
+          return-object
+        ></v-autocomplete>
+      </div>
+      <div class="options__row options__row--filter">
+        <label>Tempo de Experiência</label>
+        <v-text-field
+          class="options__experience"
+          v-model="experience"
+          dense
+          type="number"
+          label="Anos"
+          solo
+          required
+        ></v-text-field>
+        <label>Preço por hora <div v-if="price !== 0">&nbsp;(R$ {{ price }},00)</div></label>
+        <v-slider
+          v-model="price"
+          thumb-label
+          color="orange lighten-2"
+          min="0"
+          max="500"
+          track-color="grey"
+        ></v-slider>
+        <div class="options__clear">
+        <v-btn
+          depressed
+          color="orange lighten-2"
+          :loading="loading"
+          :disabled="!selectedTechnology.id || !selectedArea.id"
+          @click="search">
+          Pesquisar
+        </v-btn>
+        <v-btn
+          depressed
+          color="grey"
+          :loading="loading"
+          @click="clear">
+          Limpar
+        </v-btn>
+        </div>
+      </div>
     </div>
     <div class="search__results">
-      <div v-if="mentors.length && selectedArea.id && selectedTechnology.id">
-        <span class="search__message">
-          Encontramos <span>&nbsp;{{ mentors.length }}&nbsp;</span>
-            mentores pra te ajudar. Olha só:
-        </span>
+      <div v-if="mentors.length">
         <v-card class="result" v-for="mentor in mentors" :key="mentor.id">
           <div class="result__image">
             <v-avatar
@@ -53,9 +83,21 @@
           <div class="result__info">
             <div class="info__name">
               <span>{{ mentor.user.name }}</span>
+              <span>
+                <v-rating
+                  v-show="false"
+                  v-model="rating"
+                  color="yellow darken-3"
+                  background-color="grey darken-1"
+                  empty-icon="$ratingFull"
+                  half-increments
+                  hover
+                  small
+                ></v-rating>
+              </span>
             </div>
             <div class="info__description">
-              <span>Sobre: {{ mentor.user.about_user_description }}</span>
+              <span>{{ mentor.user.about_user_description }}</span>
               <span class="info__detail">
                 Atua há {{ mentor.experience_time }} anos com essa tecnologia
               </span>
@@ -63,15 +105,16 @@
           </div>
           <div class="info__cta">
             <v-btn
+              disabled
               color="orange lighten-2"
               outlined
               depressed>
-              Verificar Agenda
+              Contratar
             </v-btn>
           </div>
         </v-card>
       </div>
-      <div v-if="message !== ''">
+      <div v-else>
         <span class="search__message">
           Ops! Não encontramos nenhum resultado para a sua pesquisa.
         </span>
@@ -93,6 +136,9 @@ export default Vue.extend({
     selectedTechnology: {} as Technology,
     mentors: [] as Array<User>,
     message: '',
+    rating: 0,
+    price: 0,
+    experience: null,
   }),
   computed: {
     ...mapGetters(['areas', 'technologies']),
@@ -106,17 +152,37 @@ export default Vue.extend({
       const technology = this.technologies
         .find((t: Technology) => t.area === this.selectedArea.id
           && t.name === this.selectedTechnology.name);
-      this.mentors = await this.searchMentors(technology.id);
+      const info = {
+        id: technology.id,
+        experience: this.experience || 0,
+        price: this.price,
+      };
+
+      this.loading = true;
+      this.mentors = await this.searchMentors(info);
+      console.log(this.mentors);
       if (this.mentors.length === 0) {
         this.message = 'Nenhum resultado encontrado';
       }
+      this.loading = false;
+    },
+    async clear() {
+      this.selectedArea = {} as Area;
+      this.selectedTechnology = {} as Technology;
+      this.price = 0;
+      this.experience = null;
+
+      this.loading = true;
+      this.mentors = await this.searchMentors({ id: '', experience: 0, price: 0 });
+      this.loading = false;
     },
   },
-  created() {
+  async created() {
     if (this.areas.length === 0 && this.technologies.length === 0) {
       this.getAreas();
       this.getTechnologies();
     }
+    this.mentors = await this.searchMentors({ id: '', experience: 0, price: 0 });
   },
 });
 </script>
@@ -124,34 +190,43 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .search {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
   &__options {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    gap: 5%;
-    width: 100%;
+    width: 25%;
+    padding: 2%;
+    background-color: #edebeb;
+    padding-top: 5%;
+    text-align: left;
+    label {
+      display: flex;;
+      margin-bottom: 4%;
+    }
   }
   &__message {
     padding: 2% 0;
     display: flex;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     span {
       font-weight: bold;
       color: #fb8a69;
     }
   }
   &__results {
-    width: 100%;
+    width: 75%;
     position: relative;
+    padding: 0 5%;
   }
 }
 
 .result {
   display: flex;
   width: 100%;
-  margin-bottom: 5%;
-  padding: 2%;
+  margin-bottom: 3%;
+  padding: 3%;
   align-items: center;
   &__image {
     margin-right: 2%;
@@ -170,10 +245,9 @@ export default Vue.extend({
     font-weight: bold;
     font-size: 1.1rem;
     padding-bottom: 2%;
-    span {
-      display: flex;
-      align-items: flex-start;
-    }
+    display: flex;
+    align-items: center;
+    gap: 2%;
   }
   &__description {
     text-align: left;
@@ -188,6 +262,26 @@ export default Vue.extend({
   &__detail {
     font-size: 0.8rem;
     padding-top: 2%;
+  }
+  &__cta {
+    padding-left: 2%;
+  }
+}
+
+.options {
+  &__row {
+    width: 100%;
+    gap: 5%;
+    color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+  }
+  &__experience {
+    width: 100%;
+  }
+  &__clear {
+    display: flex;
+    justify-content: space-between;
+
   }
 }
 </style>
