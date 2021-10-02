@@ -54,7 +54,7 @@ export default new Vuex.Store({
         if (response) {
           commit('setUserAuthentication', true);
           commit('setUser', response.data.user);
-          localStorage.setItem('token', JSON.stringify(response.data.token));
+          localStorage.setItem('token', response.data.token);
           localStorage.setItem('user', JSON.stringify(response.data.user));
         }
       }).catch((e) => {
@@ -125,7 +125,7 @@ export default new Vuex.Store({
       });
     },
     async searchMentors({ commit }, info) {
-      const token = JSON.parse(localStorage.getItem('token'));
+      const token = localStorage.getItem('token');
       return new Promise((resolve, reject) => {
         api.get(`/users/technology?id=${info.id}&experience=${info.experience}&price=${info.price}`, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
@@ -133,6 +133,17 @@ export default new Vuex.Store({
           }).catch((e) => {
             reject(e.response.data.error);
           });
+      });
+    },
+    async loginGoogle({ commit }) {
+      return api.get('/google').then((response) => {
+        if (response) {
+          const link = document.createElement('a');
+          link.href = response.request.responseURL;
+          link.click();
+        }
+      }).catch((e) => {
+        throw new Error(e.response.data.error);
       });
     },
   },

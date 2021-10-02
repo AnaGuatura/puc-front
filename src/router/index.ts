@@ -88,6 +88,12 @@ router.beforeEach((to, from, next) => {
 
   if (to.name === 'Landing' || to.name === 'Register') {
     next();
+  } else if (to.query.user && to.query.token) {
+    localStorage.setItem('token', to.query.token.toString());
+    store.commit('setUser', JSON.parse(to.query.user.toString()));
+    localStorage.setItem('user', to.query.user.toString());
+    store.commit('setUserAuthentication', true);
+    next();
   } else if (to.name !== 'Login' && !store.state.isAuthenticated) {
     next({ name: 'Login' });
   } else {

@@ -31,8 +31,7 @@
               dense
               color="orange lighten-2"
               depressed
-              disabled
-              @click="login">
+              @click="loginGoogle">
               <v-icon>mdi-google</v-icon>
               Continuar com o Google
             </v-btn>
@@ -65,7 +64,7 @@ export default Vue.extend({
     ...mapGetters(['isAuthenticated']),
   },
   methods: {
-    ...mapActions(['login']),
+    ...mapActions(['login', 'loginGoogle']),
     async authenticate() {
       this.loading = true;
       await this.login({
@@ -77,6 +76,9 @@ export default Vue.extend({
         this.loading = false;
         this.$router.push({ path: '/home' });
       }
+    },
+    async authenticateWithGoogle() {
+      this.loginGoogle();
     },
   },
 });

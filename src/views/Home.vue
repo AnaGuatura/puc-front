@@ -23,8 +23,10 @@ export default Vue.extend({
   computed: {
     ...mapGetters(['user']),
   },
-  methods: {
-    ...mapActions(['getUser']),
+  created() {
+    if (this.$route.query.user) {
+      this.$router.replace('/home');
+    }
   },
 });
 </script>
