@@ -1,7 +1,11 @@
 <template>
   <section class="search">
     <div class="search__options">
-      <div class="options__row">
+      <div class="options__mobile" v-if="display <= 768">
+        <v-btn icon @click="show = !show"><v-icon color="#fb8a69">mdi-menu</v-icon></v-btn>
+        Filtros
+      </div>
+      <div class="options__row" v-show="show || display > 768">
         <label>Área de Atuação</label>
         <v-select
           dense
@@ -28,7 +32,7 @@
           return-object
         ></v-autocomplete>
       </div>
-      <div class="options__row options__row--filter">
+      <div class="options__row options__row--filter" v-show="show || display > 768">
         <label>Tempo de Experiência</label>
         <v-text-field
           class="options__experience"
@@ -139,6 +143,8 @@ export default Vue.extend({
     rating: 0,
     price: 0,
     experience: null,
+    display: window.innerWidth,
+    show: false,
   }),
   computed: {
     ...mapGetters(['areas', 'technologies']),
@@ -148,6 +154,9 @@ export default Vue.extend({
   },
   methods: {
     ...mapActions(['getAreas', 'getTechnologies', 'searchMentors']),
+    onResize() {
+      this.display = window.innerWidth;
+    },
     async search() {
       const technology = this.technologies
         .find((t: Technology) => t.area === this.selectedArea.id
@@ -178,20 +187,33 @@ export default Vue.extend({
     },
   },
   async created() {
+    window.addEventListener('resize', this.onResize);
+
     if (this.areas.length === 0 && this.technologies.length === 0) {
       this.getAreas();
       this.getTechnologies();
     }
     this.mentors = await this.searchMentors({ id: '', experience: 0, price: 0 });
   },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+$small: 600px;
+$medium: 768px;
+
 .search {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  @media screen and (max-width: $medium)
+  {
+    flex-direction: column;
+  }
   &__options {
     display: flex;
     flex-direction: column;
@@ -201,6 +223,13 @@ export default Vue.extend({
     background-color: #edebeb;
     padding-top: 5%;
     text-align: left;
+    height: 100%;
+    @media screen and (max-width: $medium)
+    {
+      width: 100%;
+      margin-bottom: 5%;
+      padding-top: 2%;
+    }
     label {
       display: flex;;
       margin-bottom: 4%;
@@ -219,6 +248,10 @@ export default Vue.extend({
     width: 75%;
     position: relative;
     padding: 0 5%;
+    @media screen and (max-width: $medium)
+    {
+      width: 100%;
+    }
   }
 }
 
@@ -228,6 +261,11 @@ export default Vue.extend({
   margin-bottom: 3%;
   padding: 3%;
   align-items: center;
+  @media screen and (max-width: $small)
+  {
+    padding: 5%;
+    flex-direction: column;
+  }
   &__image {
     margin-right: 2%;
     margin-left: 2%;
@@ -236,6 +274,10 @@ export default Vue.extend({
     display: flex;
     flex-direction: column;
     width: 100%;
+    @media screen and (max-width: $small)
+    {
+      padding-bottom: 10%;
+    }
   }
 }
 
@@ -281,7 +323,14 @@ export default Vue.extend({
   &__clear {
     display: flex;
     justify-content: space-between;
-
+  }
+  &__mobile {
+    // padding-bottom: 5%;
+    color: #fb8a69;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
   }
 }
 </style>

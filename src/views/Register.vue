@@ -2,7 +2,7 @@
     <main class="register">
       <h1>Seja bem-vindo!</h1>
       <div class="register__form">
-        <section>
+        <v-form v-model="isValid">
           <v-text-field
             dense
             label="Nome"
@@ -44,15 +44,35 @@
             required
             :rules="[rules.required]"
           ></v-text-field>
-            <v-text-field
-            dense
-            label="Data de Nascimento"
-            v-model="user.birthday"
-            solo
-            required
-            :rules="[rules.required]"
-          ></v-text-field>
-
+           <v-menu
+            v-model="menu"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+            dark
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                dense
+                solo
+                v-model="dateFormatted"
+                label="Date"
+                persistent-hint
+                prepend-icon="mdi-calendar"
+                v-bind="attrs"
+                @blur="date = parseDate(dateFormatted)"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="date"
+              max="2021-NaN-NaN"
+              no-title
+              @input="menu = false"
+            ></v-date-picker>
+          </v-menu>
           <div class="register__usertype">
             <span>Você deseja ser um usuário:</span>
             <v-radio-group
@@ -99,11 +119,11 @@
                 <div class="register__skill">
                   <div class="register__add">
                     <label>Áreas de Atuação</label>
-                    <v-btn icon @click="addSkill"><v-icon>mdi-plus</v-icon></v-btn>
+                    <v-btn icon @click="addSkill"><v-icon color="#fb8a69">mdi-plus</v-icon></v-btn>
                   </div>
                   <div class="skill" v-for="(skill, index) in skills" :key="index">
                     <div class="skill__delete" @click="removeSkill(index)">
-                      <v-btn icon x-small><v-icon>mdi-close</v-icon></v-btn>
+                      <v-btn icon x-small><v-icon color="#fb8a69">mdi-close</v-icon></v-btn>
                       <span>Remover</span>
                     </div>
                     <div class="skill__tech">
@@ -187,10 +207,10 @@
                 </div>
               </div>
             </div>
-        </section>
+        </v-form>
         <article class="register__terms">
           <h4>Termos de Uso</h4>
-          <span>Um textão aqui.</span>
+          <span> {{ terms }}</span>
          <v-checkbox
             v-model="hasAccepted"
             color="#fb8a69"
@@ -203,6 +223,7 @@
       <footer class="register__cta">
         <v-btn
           depressed
+          color="orange lighten-2"
           :loading="loading"
           @click="registerUser">
           Cadastrar
@@ -227,6 +248,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
+import moment from 'moment';
 
 import {
   User,
@@ -239,6 +261,9 @@ import {
 export default Vue.extend({
   name: 'register',
   data: () => ({
+    menu: false,
+    date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000))
+      .toISOString().substr(0, 10),
     rules: {
       required: (value: string) => !!value || 'Campo obrigatório.',
       email: (value: string) => {
@@ -264,22 +289,52 @@ export default Vue.extend({
     paymentsMethods: [],
     listTechnologies: [] as Array<Technology>,
     error: '',
+    terms: 'Permito a disponibilidade das informações concedidas nesse cadastro para que os usuários da plataforma possam visualizá-las e, possivelmente, entrarem em contato comigo para tirar dúvidas e discutir sobre outros assuntos. Responsabilizo-me por quaisquer danos ocasionados à minha imagem e informações exibidas.',
+    isValid: false,
   }),
   computed: {
     ...mapGetters(['isAuthenticated', 'userCreated', 'areas', 'payments', 'technologies']),
+    dateFormatted() {
+      return moment(this.date).format('DD/MM/YYYY');
+    },
   },
   methods: {
     ...mapActions(['register', 'login', 'getAreas', 'getPayments', 'getTechnologies', 'createTechnologies', 'createSkills', 'createPayments']),
     ...mapMutations(['setTechnologies']),
-    validationFields(): boolean {
-      const isValid = true;
+    formatDate(date: string) {
+      if (!date) return null;
+
+      const [year, month, day] = date.split('-');
+      return `${day}/${month}/${year}`;
+    },
+    parseDate(date: string) {
+      if (!date) return null;
+
+      const [month, day, year] = date.split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    },
+    validationFields(role: string): boolean {
+      let isValid = false;
+
+      isValid = this.user.name !== '' && this.user.lastname !== '' && this.user.email !== ''
+        && this.user.password !== '' && this.user.phone !== '' && this.user.birthday !== ''
+        && this.user.role !== '';
+
+      if (role === 'mentor') {
+        if (isValid) {
+          isValid = this.user.about_user_description !== ''
+            && this.user.experiences_description !== '' && this.skills.length > 0 && this.hasAccepted
+            && this.paymentsMethods.length > 0;
+        }
+      }
 
       return isValid;
     },
     async registerUser() {
-      if (!this.hasAccepted) return;
+      this.error = '';
+      this.user.birthday = this.date;
 
-      if (this.validationFields()) {
+      if (this.validationFields(this.user.role)) {
         this.loading = true;
 
         await this.register(this.user).catch((error) => {
@@ -310,16 +365,22 @@ export default Vue.extend({
             }
 
             let skills = [] as Array<Skills>;
-            this.technologies.forEach((t: Technology) => {
-              skills = this.skills.map((skill) => {
-                const s = skill;
-                s.user = this.userCreated.id;
-                if (s.technology.area === t.area && s.technology.name === t.id) {
-                  s.technology = t.id;
-                }
-                return s;
-              });
-            });
+            skills = this.skills.reduce((acc, curr) => {
+              const object = {
+                user: this.userCreated.id,
+                price: curr.price,
+                experience_time: curr.experience_time,
+                technology: this.technologies.find((t: Technology) => t.area
+                  === curr.technology.area && (t.id === curr.technology.name
+                    || t.name === curr.technology.other))?.id,
+              };
+
+              console.log(this.technologies, curr);
+
+              if (object.technology !== '') acc.push(object);
+
+              return acc;
+            }, [] as Array<Skills>);
 
             const skill = await this.createSkills({ skills }).catch((error) => error);
 
@@ -347,7 +408,7 @@ export default Vue.extend({
             }
           }
 
-          if (this.error !== '') {
+          if (this.error === '') {
             await this.login({
               email: this.user.email,
               password: this.user.password,
@@ -360,6 +421,7 @@ export default Vue.extend({
         }
       } else {
         this.loading = false;
+        this.error = 'É necessários preencher todos os campos corretamente.';
       }
     },
     verifyIfOther(value: string) {
@@ -425,33 +487,55 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+$small: 600px;
+$medium: 768px;
+
  .register {
    padding: 5%;
    font-family: 'Raleway', sans-serif;
    width: 100%;
+   h1 {
+     text-align: center;
+     margin-bottom: 2%;
+   }
    &__error {
     padding-top: 5%;
-    position: fixed;
     bottom: 0px;
-    width: 90%;
+    width: 60%;
+    margin: 0 auto;
    }
    &__form {
-     margin-top: 2%;
-     display: flex;
-     section {
-       width: 60%;
-     }
-     article {
-       width: 35%;
-       margin-left: 5%;
-     }
+    margin-top: 2%;
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin: 0 auto;
+    @media screen and (max-width: $small)
+    {
+      width: 90%;
+    }
+    section {
+      margin-top: 5%;
+    }
+    article {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      padding: 3% 0;
+      text-align: left;
+    }
    }
    &__usertype{
      display: flex;
      align-items: center;
      justify-content: space-between;
      width: 100%;
-   }
+    @media screen and (max-width: $small)
+    {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
    &__checkbox-usertype {
      display: flex;
      width: 60%;
@@ -465,10 +549,12 @@ export default Vue.extend({
      }
    }
    &__cta {
-     margin-top: 2%;
-     display: flex;
-     justify-content: flex-end;
-     z-index: 10;
+    margin-top: 2%;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+    width: 60%;
+    margin: 0 auto;
    }
    &__skill{
      display: flex;
@@ -497,11 +583,19 @@ export default Vue.extend({
          padding-bottom: 2%;
        }
        &__tech {
-         display: flex;
+        display: flex;
+        @media screen and (max-width: $small)
+        {
+         flex-direction: column;
+        }
          gap: 10%;
        }
        &__info {
          display: flex;
+        @media screen and (max-width: $small)
+        {
+         flex-direction: column;
+        }
          gap: 10%;
        }
        &__delete {
@@ -521,9 +615,17 @@ export default Vue.extend({
 
  .skill__tech > div {
     width: 45% !important;
+    @media screen and (max-width: $small)
+    {
+      width: 100% !important;
+    }
   }
 
   .skill__info > div {
     width: 45% !important;
+    @media screen and (max-width: $small)
+    {
+      width: 100% !important;
+    }
   }
 </style>

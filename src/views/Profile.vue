@@ -2,11 +2,24 @@
   <main class="profile">
     <section class="profile__content">
       <aside>
-        <div class="profile__user-info">
-          <div class="profile__img"></div>
+        <div class="profile__mobile" v-if="display < 768">
+          <v-btn icon @click="show = !show"><v-icon color="#fb8a69">mdi-menu</v-icon></v-btn>
+          Menu
+        </div>
+        <div class="profile__user-info" v-show="show || display > 768">
+          <div class="profile__img">
+            <v-avatar
+            color="#1cb0a8"
+            size="80"
+            >
+            <span class="white--text text-h5">
+              {{ user.name[0] | toUpperCase }}{{ user.lastname[0] | toUpperCase}}
+            </span>
+            </v-avatar>
+          </div>
           <h1>Oi, {{ user.name }}!</h1>
         </div>
-        <nav>
+        <nav v-show="show || display > 768">
           <ul>
             <div class="profile__menu" v-for="menu in menu[user.role]" :key="menu.name">
               <router-link :to="menu.path">
@@ -34,6 +47,8 @@ export default Vue.extend({
   name: 'Profile',
   data: () => ({
     loading: false,
+    display: window.innerWidth,
+    show: false,
     menu: {
       admin: [
         {
@@ -86,24 +101,43 @@ export default Vue.extend({
   computed: {
     ...mapGetters(['user']),
   },
+  filters: {
+    toUpperCase: (value: string) => value.charAt(0).toUpperCase(),
+  },
   methods: {
     ...mapActions(['getUser']),
+    onResize() {
+      this.display = window.innerWidth;
+    },
     verifyRoute(path: string) {
       const route = this.$router.currentRoute.path;
       console.log(path, route);
       return path === route ? 'active' : '';
     },
   },
+  created() {
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+$small: 600px;
+$medium: 768px;
+
 .profile {
   display: flex;
   font-family: 'Raleway', sans-serif;
   .profile__content {
     display: flex;
     width: 100%;
+    @media screen and (max-width: $medium)
+    {
+      flex-direction: column;
+    }
     aside {
       background-color: #edebeb;
       width: 20%;
@@ -112,6 +146,13 @@ export default Vue.extend({
       display: flex;
       overflow: hidden;
       flex-direction: column;
+      padding: 2%;
+      @media screen and (max-width: $medium)
+      {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
       a {
         text-decoration: none;
         color: inherit;
@@ -124,12 +165,21 @@ export default Vue.extend({
         padding: 5%;
         display: flex;
         justify-content: space-between;
+        @media screen and (max-width: $medium)
+        {
+          padding: 2%;
+        }
       }
     }
 
     section {
       margin-left: 20%;
       width: 80%;
+      @media screen and (max-width: $medium)
+      {
+        margin-left: 0%;
+        width: 100%;
+      }
     }
   }
   &__user-info {
@@ -137,7 +187,6 @@ export default Vue.extend({
     justify-content: center;
     font-weight: bold;
     flex-direction: column;
-    // color: #fb8a69;
     align-items: center;
     padding-top: 10%;
     h1 {
@@ -145,13 +194,9 @@ export default Vue.extend({
     }
   }
 
-  &__img {
-    padding-top: 5%;
-    height: 150px;
-    width: 150px;
-    // border: 1px solid;
-    // border-color: #fcb643;
-    border-radius: 50%;
+  &__mobile {
+    color: #fb8a69;
+    font-weight: bold;
   }
 }
 

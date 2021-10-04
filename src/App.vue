@@ -45,7 +45,7 @@
         </ul>
       </nav>
     </header>
-    <v-main>
+    <v-main class="body">
       <router-view/>
     </v-main>
   </v-app>
@@ -66,12 +66,13 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-  .theme--light.v-application {
+  .theme--light.v-application, body {
     background-color: #fcfcfc !important;
   }
 
   .theme--light.v-btn {
       color: white !important;
+      font-weight: 600;
   }
     hr {
     margin: 1.5em auto;
@@ -104,13 +105,16 @@ export default Vue.extend({
   }
 
   .header {
-    font-family: 'Raleway', sans-serif;
+    font-family: "Raleway", sans-serif;
     padding: 0 5%;
     display: flex;
     width: 100%;
     height: 50px;
-    font-size: 0.80rem;
+    font-size: 0.8rem;
     align-items: center;
+    position: fixed;
+    z-index: 5;
+    background-color: #fcfcfc;
     a {
       text-decoration: none;
       color: rgba(0, 0, 0, 0.87) !important;
@@ -131,9 +135,24 @@ export default Vue.extend({
       justify-content: flex-end;
       align-items: center;
       ul {
+        display: flex;
         a {
           text-decoration: none;
           color: inherit;
+          display: flex;
+          :after {
+            content: '';
+            display: block;
+            margin: auto;
+            height: 2px;
+            width: 0px;
+            background: transparent;
+            transition: width .2s ease, background-color .2s ease;
+          }
+          :hover:after {
+            width: 100%;
+            background-color: #fcb643;
+          }
         }
         li {
           text-transform: uppercase;
@@ -145,4 +164,9 @@ export default Vue.extend({
       }
     }
   }
+
+  .body {
+    margin-top: 50px;
+  }
+
 </style>

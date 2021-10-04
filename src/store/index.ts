@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import api from './api';
+import { Technology } from '@/utils/types';
 
 Vue.use(Vuex);
 
@@ -50,17 +51,20 @@ export default new Vuex.Store({
         });
     },
     async login({ commit }, credentials) {
-      return api.post('/login', credentials).then((response) => {
-        if (response) {
-          commit('setUserAuthentication', true);
-          commit('setUser', response.data.user);
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-        }
-      }).catch((e) => {
-        commit('setUserAuthentication', false);
-        commit('setUser', {});
-        throw new Error(e.response.data.error);
+      return new Promise((resolve, reject) => {
+        api.post('/login', credentials).then((response) => {
+          if (response) {
+            commit('setUserAuthentication', true);
+            commit('setUser', response.data.user);
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            resolve(response.data.user);
+          }
+        }).catch((e) => {
+          commit('setUserAuthentication', false);
+          commit('setUser', {});
+          reject(e.response.data.error);
+        });
       });
     },
     async getAreas({ commit }) {
@@ -97,7 +101,11 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         api.post('/technologies', technologies).then((response) => {
           if (response.data) {
-            commit('setTechnologies', response.data);
+            const oldTechnologies = state.technologies as Array<Technology>;
+            response.data.forEach((tech: Technology) => {
+              oldTechnologies.push(tech);
+            });
+            commit('setTechnologies', oldTechnologies);
             resolve(response.data);
           }
         }).catch((e) => {
@@ -117,7 +125,7 @@ export default new Vuex.Store({
     },
     async createPayments({ commit }, payments) {
       return new Promise((resolve, reject) => {
-        api.post('/skills', payments).then((response) => {
+        api.post('/payments', payments).then((response) => {
           if (response.data) resolve(response.data);
         }).catch((e) => {
           reject(e.response.data.error);

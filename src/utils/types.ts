@@ -31,7 +31,7 @@ export interface Skill {
 
 export interface Skills {
     user: string;
-    technology: string;
+    technology?: string;
     price?: number | null;
     experience_time?: number | null;
 }

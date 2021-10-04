@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapActions, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 import SearchMentor from '@/components/SearchMentor.vue';
 
 export default Vue.extend({
@@ -33,8 +33,10 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .home {
+  height: 100%;
   .home__content {
     text-align: center;
+    height: 100%;
   }
 }
 </style>

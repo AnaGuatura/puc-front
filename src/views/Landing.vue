@@ -5,7 +5,7 @@
         <h4>Arquitetura & Desenvolvimento</h4>
         <h1>Aqui para desenvolver você<span>.</span></h1>
         <p>Procurando por algum mentor que te ajude a evoluir e a
-          alcançar os próximos passos da sua carreira? Aqui é o lugar para você!
+          alcançar os próximos passos da sua carreira? Aqui é o lugar certo para você!
         </p>
         <section class="landing__cta-buttons">
            <router-link :to="'register'">
@@ -13,11 +13,9 @@
               Inscreva-se
             </v-btn>
           </router-link>
-          <router-link :to="'login'">
-            <v-btn color="orange lighten-2" depressed :scroll-to="'#about'">
-              O que fazemos?
-            </v-btn>
-          </router-link>
+          <v-btn color="orange lighten-2" depressed @click="$vuetify.goTo('#about')">
+            O que fazemos?
+          </v-btn>
         </section>
       </article>
       <aside class="landing__cta-image">
@@ -33,18 +31,14 @@
         </h1>
       </article>
       <article>
-        Oi! Eu sou a Ana, trabalho com desenvolvimento há mais de 5 anos e nessa vida de
-        programadora,
-        me deparei com muitos momentos em que eu precisava saber como trabalhar
-        com certas tecnologias em um período muito muito de tempo <span>quem nunca?</span> e por
-        muitas vezes me perguntei ou até pensei em contratar alguém que me ensinasse os primeiros
-        passos ou me indicasse por onde seguir, mas... onde encontrar alguém que tivesse um domínio
-        sobre um assunto muito específico e que estivesse disposto a falar sobre esse assunto
-        durante 1 horinha que fosse? E desse pensamento nasceu o MADS.
-        Aqui é o lugar para encontrar essa pessoa que
-        possa te ajudar e te explicar tim tim por tim tim sobre um
-        determinado assunto em um período curtinho
-        de tempo (ou não né!). Seja bem vindo!
+        Oi! O MADS (Mentoria em Arquitetura e Desenvolvimento de Software) surgiu
+        com o objetivo de ajudar profissionais da área de TI que possuem pouco tempo
+        (ou quase nenhum) para aprender sobre um determinado assunto. Nesse sentido,
+        essa plataforma oferece uma lista de profissionais que podem ajudar esse profissional
+        a evoluir em sua carreira oferecendo mentorias personalizadas, que ofereçam de forma
+        individual aquilo que o profissional mentorado precisa. A procura de um mentor para
+        te ajudar a evoluir seus conhecimentos sobre determinada tecnologia? Esse é o lugar!
+        Deseja ajudar alguém com seus conhecimentos? Esse também é o seu lugar!
       </article>
     </section>
     <hr>
@@ -90,62 +84,39 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+$small: 600px;
+$medium: 768px;
+
 .landing {
   width: 100%;
   height: 100vh;
   font-family: 'Raleway', sans-serif;
-  &__header {
-    padding: 0 5%;
-    display: flex;
-    width: 100%;
-    height: 50px;
-    font-size: 0.80rem;
-    align-items: center;
-    hr {
-      margin-left: 20px;
-      margin-top: 17px;
-    }
-    span {
-      font-size: 1rem;
-      font-weight: bold;
-      margin-left: 25px;
-      letter-spacing: 5px;
-    }
-    nav {
-      width: 100%;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      ul {
-        a {
-          text-decoration: none;
-          color: inherit;
-        }
-        li {
-          text-transform: uppercase;
-          font-weight: bold;
-          color: #fb8a69;
-          display: inline;
-          margin: 0.5rem;
-        }
-      }
-    }
-  }
   &__cta {
     padding: 5%;
+    padding-top: 2%;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    height: 100%;
+    @media screen and (max-width: $small)
+    {
+      height: auto;
+    }
     article {
       width: 45%;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
+      @media screen and (max-width: $small)
+      {
+        width: 100%;
+      }
 
       h1 {
         font-size: 3.2rem;
+        width: 75%;
         span {
-          color: #6bb6b6;
+          color: #1cb0a8;
           font-weight: bold;
         }
       }
@@ -154,6 +125,10 @@ export default Vue.extend({
         text-transform: uppercase;
         color: #fb8a69;
         margin-bottom: 20%;
+        @media screen and (max-width: $small)
+        {
+          margin-bottom: 10%;
+        }
       }
 
       p {
@@ -175,6 +150,13 @@ export default Vue.extend({
     }
     &-image{
       width: 45%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      @media screen and (max-width: $small)
+      {
+        display: none;
+      }
     }
 
     aside {
@@ -192,11 +174,27 @@ export default Vue.extend({
     display: flex;
     align-items: center;
     justify-content: space-between;
+    @media screen and (max-width: $medium)
+    {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
     :first-child {
       width: 40%;
+      @media screen and (max-width: $medium)
+      {
+        margin-bottom: 5%;
+      }
+      @media screen and (max-width: $small)
+      {
+        width: 100%;
+        margin-top: 5%;
+      }
     }
     article {
-      width: 60%;
+      width: 100%;
+      font-size: 1.2rem;
       h4 {
         text-transform: uppercase;
         color: #fb8a69;
@@ -238,6 +236,10 @@ export default Vue.extend({
   display: flex;
   justify-content: space-between;
   width: 100%;
+  @media screen and (max-width: $small)
+  {
+    flex-direction: column;
+  }
   &__front-end {
     height: 200px;
     width: 30%;
@@ -252,6 +254,11 @@ export default Vue.extend({
       content: "front-end sim";
       background-color: black;
     }
+    @media screen and (max-width: $small)
+    {
+      width: 100%;
+      margin-bottom: 5%;
+    }
   }
   &__back-end {
     height: 200px;
@@ -263,6 +270,11 @@ export default Vue.extend({
     font-weight: bold;
     font-size: 1.2rem;
     color: #fff;
+    @media screen and (max-width: $small)
+    {
+      width: 100%;
+      margin-bottom: 5%;
+    }
   }
     &__banco {
     height: 200px;
@@ -274,6 +286,11 @@ export default Vue.extend({
     font-weight: bold;
     font-size: 1.2rem;
     color: #fff;
+    @media screen and (max-width: $small)
+    {
+      width: 100%;
+      margin-bottom: 5%;
+    }
   }
 }
 </style>
