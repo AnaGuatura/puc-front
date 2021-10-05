@@ -256,6 +256,7 @@ import {
   Skill,
   Skills,
   Payment,
+  Area,
 } from '../utils/types';
 
 export default Vue.extend({
@@ -375,8 +376,6 @@ export default Vue.extend({
                     || t.name === curr.technology.other))?.id,
               };
 
-              console.log(this.technologies, curr);
-
               if (object.technology !== '') acc.push(object);
 
               return acc;
@@ -457,27 +456,19 @@ export default Vue.extend({
   watch: {
     technologies: {
       handler(curr: Array<Technology>) {
-        if (curr.length > 0) {
-          const others = [
-            {
-              id: '0',
-              area: '1c3a8768-b46a-4e20-9e90-a609210173d5',
-              name: 'OUTRA',
-            },
-            {
-              id: '0',
-              area: '443eba90-15f7-4113-8e6d-8836489df903',
-              name: 'OUTRA',
-            },
-            {
-              id: '0',
-              area: 'c0d2b142-f40f-4a36-8f74-6f48d5eb22a9',
-              name: 'OUTRA',
-            },
-          ] as Array<Technology>;
+        const others = [] as Array<Technology>;
 
-          this.listTechnologies = [...curr, ...others];
-        }
+        this.areas.forEach((area: Area) => {
+          const object = {
+            id: '0',
+            area: area.id,
+            name: 'OUTRA',
+          };
+
+          others.push(object);
+        });
+
+        this.listTechnologies = [...curr, ...others];
       },
       deep: true,
       immediate: true,

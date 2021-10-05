@@ -111,7 +111,6 @@ export default Vue.extend({
     },
     verifyRoute(path: string) {
       const route = this.$router.currentRoute.path;
-      console.log(path, route);
       return path === route ? 'active' : '';
     },
   },

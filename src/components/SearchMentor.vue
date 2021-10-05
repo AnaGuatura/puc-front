@@ -169,7 +169,7 @@ export default Vue.extend({
 
       this.loading = true;
       this.mentors = await this.searchMentors(info);
-      console.log(this.mentors);
+
       if (this.mentors.length === 0) {
         this.message = 'Nenhum resultado encontrado';
       }
