@@ -148,7 +148,7 @@
                         hide-no-data
                         hide-selected
                         item-text="name"
-                        label="Technologia"
+                        label="Tecnologia"
                         item-value="id"
                         solo
                         @change="verifyIfOther"

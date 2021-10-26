@@ -26,7 +26,7 @@
           hide-no-data
           hide-selected
           item-text="name"
-          label="Technologia"
+          label="Tecnologia"
           item-value="id"
           solo
           return-object
@@ -64,7 +64,7 @@
         <v-btn
           depressed
           color="grey"
-          :loading="loading"
+          :loading="loadingCleaner"
           @click="clear">
           Limpar
         </v-btn>
@@ -102,9 +102,9 @@
             </div>
             <div class="info__description">
               <span>{{ mentor.user.about_user_description }}</span>
-              <span class="info__detail">
+              <!-- <span class="info__detail">
                 Atua há {{ mentor.experience_time }} anos com essa tecnologia
-              </span>
+              </span> -->
             </div>
           </div>
           <div class="info__cta">
@@ -136,6 +136,7 @@ export default Vue.extend({
   name: 'search',
   data: () => ({
     loading: false,
+    loadingCleaner: false,
     selectedArea: {} as Area,
     selectedTechnology: {} as Technology,
     mentors: [] as Array<User>,
@@ -181,9 +182,9 @@ export default Vue.extend({
       this.price = 0;
       this.experience = null;
 
-      this.loading = true;
+      this.loadingCleaner = true;
       this.mentors = await this.searchMentors({ id: '', experience: 0, price: 0 });
-      this.loading = false;
+      this.loadingCleaner = false;
     },
   },
   async created() {
