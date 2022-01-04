@@ -3,6 +3,7 @@
       <h1>Seja bem-vindo!</h1>
       <div class="register__form">
         <v-form v-model="isValid">
+          <label>Nome</label>
           <v-text-field
             dense
             label="Nome"
@@ -11,6 +12,7 @@
             required
             :rules="[rules.required]"
           ></v-text-field>
+          <label>Sobrenome</label>
           <v-text-field
             dense
             label="Sobrenome"
@@ -19,6 +21,7 @@
             required
             :rules="[rules.required]"
           ></v-text-field>
+          <label>E-mail</label>
           <v-text-field
             dense
             label="E-mail"
@@ -27,6 +30,7 @@
             solo
             required
           ></v-text-field>
+          <label>Senha</label>
           <v-text-field
             dense
             label="Senha"
@@ -36,6 +40,7 @@
             required
             :rules="[rules.required]"
           ></v-text-field>
+          <label>Telefone</label>
           <v-text-field
             dense
             label="Telefone"
@@ -44,6 +49,7 @@
             required
             :rules="[rules.required]"
           ></v-text-field>
+          <label>Data de Nascimento</label>
            <v-menu
             v-model="menu"
             :close-on-content-click="false"
@@ -514,6 +520,10 @@ $medium: 768px;
       align-items: flex-start;
       padding: 3% 0;
       text-align: left;
+    }
+    label {
+      margin-bottom: 2%;
+      display: flex;
     }
    }
    &__usertype{

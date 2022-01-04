@@ -3,12 +3,14 @@
       <h1>Bem-vindo de volta!</h1>
       <section class="login__form">
         <section>
+          <label>E-mail</label>
           <v-text-field
             dense
             label="E-mail"
             v-model="user.email"
             solo
           ></v-text-field>
+          <label>Senha</label>
           <v-text-field
             dense
             label="Senha"
@@ -121,6 +123,10 @@ $medium: 768px;
       {
         width: 100%;
       }
+    }
+    label {
+      margin-bottom: 2%;
+      display: flex;
     }
     aside {
       width: 45%;

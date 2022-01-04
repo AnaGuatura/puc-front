@@ -80,13 +80,13 @@
               size="80"
             >
               <span class="white--text text-h5">
-                {{ mentor.user.name[0] | toUpperCase }}{{ mentor.user.lastname[0] | toUpperCase}}
+                {{ mentor.name | toUpperCase }}{{ mentor.lastname | toUpperCase}}
               </span>
             </v-avatar>
           </div>
           <div class="result__info">
             <div class="info__name">
-              <span>{{ mentor.user.name }}</span>
+              <span>{{ mentor.name }}</span>
               <span>
                 <v-rating
                   v-show="false"
@@ -101,20 +101,26 @@
               </span>
             </div>
             <div class="info__description">
-              <span>{{ mentor.user.about_user_description }}</span>
-              <!-- <span class="info__detail">
-                Atua há {{ mentor.experience_time }} anos com essa tecnologia
-              </span> -->
+              <span>{{ mentor.about_user_description }}</span>
+              <div class="info__detail">
+                <div class="info__technology" v-for="skill in mentor.skills" :key="skill.id">
+                  <v-chip draggable>
+                    {{ skill.technology.name }}
+                  </v-chip>
+                </div>
+              </div>
             </div>
           </div>
           <div class="info__cta">
-            <v-btn
-              disabled
-              color="orange lighten-2"
-              outlined
-              depressed>
-              Contratar
-            </v-btn>
+            <router-link :to="`/mentor/${mentor.id}`">
+              <v-btn
+                color="orange lighten-2"
+                outlined
+                depressed
+              >
+                Contratar
+              </v-btn>
+            </router-link>
           </div>
         </v-card>
       </div>
@@ -305,9 +311,18 @@ $medium: 768px;
   &__detail {
     font-size: 0.8rem;
     padding-top: 2%;
+    display: flex;
+    gap: 2%;
+    flex-wrap: wrap;
   }
   &__cta {
     padding-left: 2%;
+    a {
+      text-decoration: none;
+    }
+  }
+  &__technology {
+    width: fit-content;
   }
 }
 
