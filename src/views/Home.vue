@@ -16,10 +16,6 @@ import SearchMentor from '@/components/SearchMentor.vue';
 export default Vue.extend({
   components: { SearchMentor },
   name: 'Home',
-  data: () => ({
-    role: '',
-    loading: false,
-  }),
   computed: {
     ...mapGetters(['user']),
   },

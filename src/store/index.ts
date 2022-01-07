@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import api from './api';
-import { Technology } from '@/utils/types';
+import { Technology, User } from '@/utils/types';
 
 Vue.use(Vuex);
 
@@ -152,6 +152,44 @@ export default new Vuex.Store({
         }
       }).catch((e) => {
         throw new Error(e.response.data.error);
+      });
+    },
+    async getUserById({ commit }, id: string) {
+      const token = localStorage.getItem('token');
+      return api.get(`/users/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => {
+        if (response) {
+          commit('setUser', response.data);
+        }
+      }).catch((e) => {
+        throw new Error(e.response.data.error);
+      });
+    },
+    async updateUser({ commit }, user: User) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.put('/users', user, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response) {
+            if (response.data.affected > 0) resolve({ type: 'success', desc: 'Dados alterados com sucesso!' });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
+    async removeUser({ commit }, user: string) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.delete(`/users/${user.id}`, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            resolve({ type: 'success', desc: 'Removido.' });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
       });
     },
   },
