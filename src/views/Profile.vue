@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapActions, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default Vue.extend({
   name: 'Profile',
@@ -105,7 +105,6 @@ export default Vue.extend({
     toUpperCase: (value: string) => value.charAt(0).toUpperCase(),
   },
   methods: {
-    ...mapActions(['getUser']),
     onResize() {
       this.display = window.innerWidth;
     },

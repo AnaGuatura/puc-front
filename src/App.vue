@@ -27,12 +27,12 @@
       </router-link>
       <nav>
         <ul>
-          <router-link :to="'home'">
+          <router-link :to="'/home'">
             <li>
               Home
             </li>
           </router-link>
-          <router-link :to="'account'">
+          <router-link :to="'/account'">
             <li>
               Perfil
             </li>
