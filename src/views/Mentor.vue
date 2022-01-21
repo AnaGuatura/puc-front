@@ -128,7 +128,7 @@
           :events="events"
           :event-ripple="false"
           @click:time="addEvent"
-          :start="today"
+          @click:event="showEvent"
         >
         </v-calendar>
       </v-sheet>
@@ -263,6 +263,9 @@ export default Vue.extend({
         this.description = '';
         this.showScheduleInfo = !this.showScheduleInfo;
       }
+    },
+    showEvent() {
+      this.showScheduleInfo = !this.showScheduleInfo;
     },
   },
   async mounted() {
