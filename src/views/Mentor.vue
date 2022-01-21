@@ -239,8 +239,8 @@ export default Vue.extend({
       this.loadingInvitation = true;
 
       const date = convertData(`${this.scheduleDate.date} ${this.scheduleDate.start}`);
-      const dt_initial = new Date(moment(date).format('YYYY-MM-DD hh:mm'));
-      const dt_final = new Date(moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm'));
+      const start = new Date(moment(date).format('YYYY-MM-DD hh:mm'));
+      const end = new Date(moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm'));
 
       const userInfo = localStorage.getItem('user');
       const user = userInfo ? JSON.parse(userInfo) : {};
@@ -249,8 +249,8 @@ export default Vue.extend({
         name: `Solicitação - ${user.name}`,
         mentor: this.mentorId,
         student: user.id,
-        dt_initial,
-        dt_final,
+        dt_initial: start,
+        dt_final: end,
         invitation_text: this.description,
       } as Mentoring;
 
