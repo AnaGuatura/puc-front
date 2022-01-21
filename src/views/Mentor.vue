@@ -236,30 +236,29 @@ export default Vue.extend({
       this.scheduleDate = { start, end, date };
     },
     async sendInvitation() {
-      const date = convertData(`${this.scheduleDate.date} ${this.scheduleDate.start}`);
-      const startTime = moment(date).format('YYYY-MM-DD hh:mm');
-      const endTime = moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm');
+      this.loadingInvitation = true;
 
-      const user = localStorage.getItem('user');
-      let userId = '';
-      if (user) userId = JSON.parse(user).id;
+      const date = convertData(`${this.scheduleDate.date} ${this.scheduleDate.start}`);
+      const dt_initial = new Date(moment(date).format('YYYY-MM-DD hh:mm'));
+      const dt_final = new Date(moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm'));
+
+      const userInfo = localStorage.getItem('user');
+      const user = userInfo ? JSON.parse(userInfo) : {};
 
       const invitation = {
-        name: `Solicitação - ${JSON.parse(user).name}`,
+        name: `Solicitação - ${user.name}`,
         mentor: this.mentorId,
-        student: userId,
-        dt_initial: new Date(startTime),
-        dt_final: new Date(endTime),
+        student: user.id,
+        dt_initial,
+        dt_final,
         invitation_text: this.description,
       } as Mentoring;
 
-      this.loadingInvitation = true;
       const mentoring = await this.createMentoring(invitation)
         .finally(() => {
           this.loadingInvitation = false;
         });
 
-      console.log(this.events);
       if (mentoring.type === 'success') {
         this.description = '';
         this.showScheduleInfo = !this.showScheduleInfo;
