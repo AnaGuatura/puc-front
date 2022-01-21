@@ -54,6 +54,11 @@ export interface EventInfo {
     end: string;
 }
 
+export interface ScheduleInfo {
+    date: string;
+    start: string;
+    end: string;
+}
 
 export interface Mentoring {
     id: string;

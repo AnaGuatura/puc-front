@@ -186,8 +186,8 @@ import { mapActions, mapGetters } from 'vuex';
 import moment from 'moment';
 
 import loading from '@/components/Loading.vue';
-import { EventInfo, Mentoring, ScheduleInfo } from '@/utils/types';
-import { convertData, rndElement } from '@/utils/functions';
+import { Mentoring, ScheduleInfo } from '@/utils/types';
+import { convertData } from '@/utils/functions';
 
 export default Vue.extend({
   name: 'mentor',
@@ -227,16 +227,13 @@ export default Vue.extend({
     },
     addEvent(event: any) {
       this.showScheduleInfo = !this.showScheduleInfo;
+
       const fullDate = `${event.date} ${event.time}`;
-      console.log(fullDate);
       const date = moment(fullDate).format('DD/MM/YYYY');
-      const startTime = moment(fullDate).format('HH:mm');
-      const endTime = moment(fullDate).add(1, 'hours').format('HH:mm');
-      this.scheduleDate = {
-        start: startTime,
-        end: endTime,
-        date,
-      };
+      const start = moment(fullDate).format('HH:mm');
+      const end = moment(fullDate).add(1, 'hours').format('HH:mm');
+
+      this.scheduleDate = { start, end, date };
     },
     async sendInvitation() {
       const date = convertData(`${this.scheduleDate.date} ${this.scheduleDate.start}`);
