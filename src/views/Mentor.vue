@@ -8,7 +8,8 @@
     >
       <v-icon>mdi-arrow-left</v-icon>
     </v-btn>
-    <section class="mentor__info">
+    <loading :active="loadingMentorData"></loading>
+    <section class="mentor__info" v-show="!loadingMentorData">
       <div class="mentor__presentation">
         <div class="mentor__image">
           <v-avatar color="indigo" size="100">
@@ -30,7 +31,7 @@
         </div>
         <div class="add-info__row">
           <div>Telefone: <span>{{ user.phone }}</span></div>
-          <div>Mentorias solicitadas: <span>{{ user.phone }}</span></div>
+          <div>Mentorias solicitadas até o momento: <span>{{ user.phone }}</span></div>
         </div>
         <div class="add-info__row">
           <div>Mentor desde: <span>{{ formatData(user.created_at) }}</span></div>
@@ -38,7 +39,7 @@
         </div>
       </div>
     </section>
-    <section class="mentor__skills">
+    <section class="mentor__skills" v-show="!loadingMentorData">
       <h1>Tecnologias</h1>
       <div class="mentor__detail">
         <div class="mentor__technologies">
@@ -58,14 +59,124 @@
           color="orange lighten-2"
           outlined
           depressed
+          @click="verifySchedule"
         >
           Verificar Agenda
         </v-btn>
       </div>
     </section>
-    <section class="mentor__feedbacks">
+    <section class="mentor__feedbacks" v-show="!loadingMentorData">
       <h1>Feedbacks Recebidos</h1>
     </section>
+    <v-dialog
+      v-model="showCalendar"
+    >
+      <v-sheet height="700">
+        <div
+          class="dialog__toolbar"
+        >
+          <v-btn
+            outlined
+            class="mr-4"
+            color="grey darken-2"
+            @click="setToday"
+          >
+            Hoje
+          </v-btn>
+          <v-btn
+            fab
+            text
+            small
+            color="grey darken-2"
+            @click="prev"
+          >
+            <v-icon small>
+              mdi-chevron-left
+            </v-icon>
+          </v-btn>
+          <v-btn
+            fab
+            text
+            small
+            color="grey darken-2"
+            @click="next"
+          >
+            <v-icon small>
+              mdi-chevron-right
+            </v-icon>
+          </v-btn>
+          <v-toolbar-title v-if="$refs.calendar">
+            {{ $refs.calendar.title }}
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn
+            icon
+            color="grey darken-2"
+            @click="showCalendar = !showCalendar"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-calendar
+          class="calendar"
+          ref="calendar"
+          :locale="'pt-br'"
+          v-model="focus"
+          :now="today"
+          color="#ffb74d"
+          type="week"
+          :events="events"
+          :event-ripple="false"
+          @click:time="addEvent"
+          :start="today"
+        >
+        </v-calendar>
+      </v-sheet>
+    </v-dialog>
+    <v-dialog
+      v-model="showScheduleInfo"
+      persistent
+      max-width="390"
+      class="confirmation"
+    >
+      <v-card>
+        <v-card-title>Solicitação</v-card-title>
+        <v-spacer></v-spacer>
+        <v-card-subtitle>Mentoria agendada para: {{ scheduleDate.date }}
+          (Início: {{ scheduleDate.start }}, Fim: {{ scheduleDate.end }}).
+        </v-card-subtitle>
+        <v-card-text>
+          Informe uma breve descrição sobre qual assunto a ser abordado na mentoria
+          para que o mentor possa analisá-lo e retornar assim que possível a solicitação.
+        </v-card-text>
+        <v-spacer/>
+        <v-card-text>Tem certeza que deseja fazer a solicitação?</v-card-text>
+        <v-textarea
+          v-model="description"
+          class="confirmation__text"
+          outlined color="grey">
+        </v-textarea>
+        <v-card-actions>
+           <v-btn
+            color="grey"
+            outlined
+            @click="showScheduleInfo = !showScheduleInfo"
+          >
+            Cancelar
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            outlined
+            depressed
+            color="deep-orange lighten-2"
+            :loading="loadingInvitation"
+            @click="sendInvitation"
+          >
+            Confirmar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </main>
 </template>
 
@@ -74,24 +185,94 @@ import Vue from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import moment from 'moment';
 
+import loading from '@/components/Loading.vue';
+import { EventInfo, Mentoring, ScheduleInfo } from '@/utils/types';
+import { convertData, rndElement } from '@/utils/functions';
+
 export default Vue.extend({
   name: 'mentor',
+  components: {
+    loading,
+  },
   data: () => ({
-    loadingMentorData: false,
+    loadingMentorData: true,
+    showCalendar: false,
+    today: new Date().toISOString().substr(0, 10),
+    focus: '',
+    showScheduleInfo: false,
+    scheduleDate: {} as ScheduleInfo,
+    description: '',
+    loadingInvitation: false,
+    mentorId: '',
   }),
   computed: {
-    ...mapGetters(['user']),
+    ...mapGetters(['user', 'events']),
   },
   methods: {
-    ...mapActions(['getUserById']),
+    ...mapActions(['getUserById', 'createMentoring']),
     formatData(date: string) {
       return moment(date).format('DD/MM/YYYY');
     },
+    verifySchedule() {
+      this.showCalendar = !this.showCalendar;
+    },
+    prev() {
+      if (this.$refs.calendar) (this.$refs.calendar as any).prev();
+    },
+    next() {
+      if (this.$refs.calendar) (this.$refs.calendar as any).next();
+    },
+    setToday() {
+      this.focus = '';
+    },
+    addEvent(event: any) {
+      this.showScheduleInfo = !this.showScheduleInfo;
+      const fullDate = `${event.date} ${event.time}`;
+      console.log(fullDate);
+      const date = moment(fullDate).format('DD/MM/YYYY');
+      const startTime = moment(fullDate).format('HH:mm');
+      const endTime = moment(fullDate).add(1, 'hours').format('HH:mm');
+      this.scheduleDate = {
+        start: startTime,
+        end: endTime,
+        date,
+      };
+    },
+    async sendInvitation() {
+      const date = convertData(`${this.scheduleDate.date} ${this.scheduleDate.start}`);
+      const startTime = moment(date).format('YYYY-MM-DD hh:mm');
+      const endTime = moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm');
+
+      const user = localStorage.getItem('user');
+      let userId = '';
+      if (user) userId = JSON.parse(user).id;
+
+      const invitation = {
+        name: `Solicitação - ${JSON.parse(user).name}`,
+        mentor: this.mentorId,
+        student: userId,
+        dt_initial: new Date(startTime),
+        dt_final: new Date(endTime),
+        invitation_text: this.description,
+      } as Mentoring;
+
+      this.loadingInvitation = true;
+      const mentoring = await this.createMentoring(invitation)
+        .finally(() => {
+          this.loadingInvitation = false;
+        });
+
+      console.log(this.events);
+      if (mentoring.type === 'success') {
+        this.description = '';
+        this.showScheduleInfo = !this.showScheduleInfo;
+      }
+    },
   },
-  async created() {
-    const { id } = this.$route.params;
+  async mounted() {
+    this.mentorId = this.$route.params.id;
     this.loadingMentorData = true;
-    if (id) await this.getUserById(id);
+    if (this.mentorId) await this.getUserById(this.mentorId);
     this.loadingMentorData = false;
   },
 });
@@ -99,9 +280,11 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
   .mentor {
-    padding: 0% 15%;
+    padding: 0% 20%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    width: 100%;
     &__presentation {
       display: flex;
       align-items: center;
@@ -118,6 +301,11 @@ export default Vue.extend({
       display: flex;
       justify-content: space-around;
       gap: 10%;
+      font-size: 0.95rem;
+      font-weight: 500;
+      span {
+        font-weight: normal;
+      }
       div {
         width: 100%;
       }
@@ -159,5 +347,23 @@ export default Vue.extend({
   }
   .previous {
     margin: 2% 0 2.5%;
+  }
+
+  .dialog {
+    &__toolbar {
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      height: 65px;
+      top: 0;
+      background-color: white;
+      padding: 1%;
+    }
+  }
+
+  .confirmation {
+    &__text {
+      padding: 5%;
+    }
   }
 </style>

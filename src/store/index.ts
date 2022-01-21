@@ -1,7 +1,13 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import api from './api';
-import { Technology, User } from '@/utils/types';
+import {
+  EventInfo,
+  Mentoring,
+  Technology,
+  User,
+} from '@/utils/types';
+import { formatEvents } from '@/utils/functions';
 
 Vue.use(Vuex);
 
@@ -12,6 +18,7 @@ export default new Vuex.Store({
     areas: [],
     payments: [],
     technologies: [],
+    events: [] as Array<EventInfo>,
     error: '',
     user: {},
   },
@@ -36,6 +43,9 @@ export default new Vuex.Store({
     },
     setUser(state, user) {
       state.user = user;
+    },
+    setEvents(state, events) {
+      state.events = formatEvents(events);
     },
   },
   actions: {
@@ -192,6 +202,21 @@ export default new Vuex.Store({
         });
       });
     },
+    async createMentoring({ commit }, mentoring: Mentoring) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.post('/mentoring', mentoring, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            commit('setEvents', response.data);
+            resolve({ type: 'success', desc: 'Solicitação enviada.' });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,
@@ -200,5 +225,6 @@ export default new Vuex.Store({
     payments: (state) => state.payments,
     technologies: (state) => state.technologies,
     user: (state) => state.user,
+    events: (state) => state.events,
   },
 });

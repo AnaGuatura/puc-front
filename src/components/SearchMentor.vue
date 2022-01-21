@@ -86,7 +86,7 @@
           </div>
           <div class="result__info">
             <div class="info__name">
-              <span>{{ mentor.name }}</span>
+              <span>{{ mentor.name }} {{ mentor.lastname }}</span>
               <span>
                 <v-rating
                   v-show="false"
@@ -101,7 +101,7 @@
               </span>
             </div>
             <div class="info__description">
-              <span>{{ mentor.about_user_description }}</span>
+              <span class="info__resume">{{ mentor.about_user_description }}</span>
               <div class="info__detail">
                 <div class="info__technology" v-for="skill in mentor.skills" :key="skill.id">
                   <v-chip draggable>
@@ -323,6 +323,13 @@ $medium: 768px;
   }
   &__technology {
     width: fit-content;
+  }
+  &__resume {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

@@ -46,3 +46,24 @@ export interface Area {
     id: string;
     name: string;
 }
+
+export interface EventInfo {
+    name: string;
+    color: string;
+    start: string;
+    end: string;
+}
+
+
+export interface Mentoring {
+    id: string;
+    name: string;
+    mentor: string;
+    student: string;
+    dt_initial: Date;
+    dt_final: Date;
+    invitation_text: string;
+    decline_text: string;
+    status: string;
+}
+

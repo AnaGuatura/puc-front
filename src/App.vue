@@ -169,4 +169,10 @@ export default Vue.extend({
     margin-top: 50px;
   }
 
+  .calendar {
+    .v-btn__content {
+      color: rgba(0, 0, 0, 0.87) !important;
+    }
+  }
+
 </style>
