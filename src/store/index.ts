@@ -217,6 +217,21 @@ export default new Vuex.Store({
         });
       });
     },
+    async getMentoring({ commit }, id: string) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.get(`/mentoring/${id}`, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            commit('setEvents', response.data);
+            resolve({ type: 'success' });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,

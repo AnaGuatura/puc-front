@@ -8,7 +8,9 @@
     >
       <v-icon>mdi-arrow-left</v-icon>
     </v-btn>
-    <loading :active="loadingMentorData"></loading>
+    <div class="mentor__loading">
+      <loading :active="loadingMentorData"></loading>
+    </div>
     <section class="mentor__info" v-show="!loadingMentorData">
       <div class="mentor__presentation">
         <div class="mentor__image">
@@ -209,12 +211,13 @@ export default Vue.extend({
     ...mapGetters(['user', 'events']),
   },
   methods: {
-    ...mapActions(['getUserById', 'createMentoring']),
+    ...mapActions(['getUserById', 'createMentoring', 'getMentoring']),
     formatData(date: string) {
       return moment(date).format('DD/MM/YYYY');
     },
     verifySchedule() {
       this.showCalendar = !this.showCalendar;
+      this.getMentoring(this.mentorId);
     },
     prev() {
       if (this.$refs.calendar) (this.$refs.calendar as any).prev();
@@ -226,6 +229,8 @@ export default Vue.extend({
       this.focus = '';
     },
     addEvent(event: any) {
+      if (event.date < this.today) return;
+
       this.showScheduleInfo = !this.showScheduleInfo;
 
       const fullDate = `${event.date} ${event.time}`;
@@ -242,8 +247,7 @@ export default Vue.extend({
       const start = new Date(moment(date).format('YYYY-MM-DD hh:mm'));
       const end = new Date(moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm'));
 
-      const userInfo = localStorage.getItem('user');
-      const user = userInfo ? JSON.parse(userInfo) : {};
+      const user = this.getUser();
 
       const invitation = {
         name: `Solicitação - ${user.name}`,
@@ -264,6 +268,12 @@ export default Vue.extend({
         this.showScheduleInfo = !this.showScheduleInfo;
       }
     },
+    getUser() {
+      const userInfo = localStorage.getItem('user');
+      const user = userInfo ? JSON.parse(userInfo) : {};
+
+      return user;
+    },
     showEvent() {
       this.showScheduleInfo = !this.showScheduleInfo;
     },
@@ -280,10 +290,17 @@ export default Vue.extend({
 <style lang="scss" scoped>
   .mentor {
     padding: 0% 20%;
+    margin-bottom: 10%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 100%;
+    &__loading {
+      align-items: center;
+      width: 100%;
+      justify-content: center;
+      display: flex;
+    }
     &__presentation {
       display: flex;
       align-items: center;
