@@ -188,8 +188,8 @@ import { mapActions, mapGetters } from 'vuex';
 import moment from 'moment';
 
 import loading from '@/components/Loading.vue';
-import { Mentoring, ScheduleInfo } from '@/utils/types';
-import { convertData } from '@/utils/functions';
+import { EventInfo, Mentoring, ScheduleInfo } from '@/utils/types';
+import { convertData, formatEvents, getUserInfo } from '@/utils/functions';
 
 export default Vue.extend({
   name: 'mentor',
@@ -206,9 +206,10 @@ export default Vue.extend({
     description: '',
     loadingInvitation: false,
     mentorId: '',
+    events: [] as Array<EventInfo>,
   }),
   computed: {
-    ...mapGetters(['user', 'events']),
+    ...mapGetters(['user', 'mentorings']),
   },
   methods: {
     ...mapActions(['getUserById', 'createMentoring', 'getMentoring']),
@@ -247,7 +248,7 @@ export default Vue.extend({
       const start = new Date(moment(date).format('YYYY-MM-DD hh:mm'));
       const end = new Date(moment(date).add(1, 'hours').format('YYYY-MM-DD hh:mm'));
 
-      const user = this.getUser();
+      const user = getUserInfo();
 
       const invitation = {
         name: `Solicitação - ${user.name}`,
@@ -268,12 +269,6 @@ export default Vue.extend({
         this.showScheduleInfo = !this.showScheduleInfo;
       }
     },
-    getUser() {
-      const userInfo = localStorage.getItem('user');
-      const user = userInfo ? JSON.parse(userInfo) : {};
-
-      return user;
-    },
     showEvent() {
       this.showScheduleInfo = !this.showScheduleInfo;
     },
@@ -283,6 +278,16 @@ export default Vue.extend({
     this.loadingMentorData = true;
     if (this.mentorId) await this.getUserById(this.mentorId);
     this.loadingMentorData = false;
+  },
+  watch: {
+    mentorings: {
+      handler(curr) {
+        if (curr) this.events = formatEvents(curr);
+        console.log(this.events);
+      },
+      deep: true,
+      immediate: true,
+    },
   },
 });
 </script>

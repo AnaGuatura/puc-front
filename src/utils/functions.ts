@@ -33,3 +33,14 @@ export const formatEvents = (events: Array<Mentoring>) => {
 
   return formatted;
 };
+
+export const getUserInfo = () => {
+  const userInfo = localStorage.getItem('user');
+  const user = userInfo ? JSON.parse(userInfo) : {};
+
+  return user;
+};
+
+export const formatDateToPtBR = (date: Date) => {
+  return moment(date).format('DD/MM/YYYY HH:mm');
+};

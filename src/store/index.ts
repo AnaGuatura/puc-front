@@ -18,7 +18,7 @@ export default new Vuex.Store({
     areas: [],
     payments: [],
     technologies: [],
-    events: [] as Array<EventInfo>,
+    mentorings: [] as Array<Mentoring>,
     error: '',
     user: {},
   },
@@ -44,8 +44,8 @@ export default new Vuex.Store({
     setUser(state, user) {
       state.user = user;
     },
-    setEvents(state, events) {
-      state.events = formatEvents(events);
+    setMentorings(state, mentorings) {
+      state.mentorings = mentorings;
     },
   },
   actions: {
@@ -209,7 +209,7 @@ export default new Vuex.Store({
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         }).then((response) => {
           if (response.data) {
-            commit('setEvents', response.data);
+            commit('setMentorings', response.data);
             resolve({ type: 'success', desc: 'Solicitação enviada.' });
           }
         }).catch((e) => {
@@ -224,8 +224,8 @@ export default new Vuex.Store({
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         }).then((response) => {
           if (response.data) {
-            commit('setEvents', response.data);
-            resolve({ type: 'success' });
+            commit('setMentorings', response.data);
+            resolve({ type: 'success', data: response.data });
           }
         }).catch((e) => {
           reject(e.response.data.error);
@@ -240,6 +240,6 @@ export default new Vuex.Store({
     payments: (state) => state.payments,
     technologies: (state) => state.technologies,
     user: (state) => state.user,
-    events: (state) => state.events,
+    mentorings: (state) => state.mentorings,
   },
 });
