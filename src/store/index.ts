@@ -232,6 +232,28 @@ export default new Vuex.Store({
         });
       });
     },
+    async updateMentoring({ commit }, mentoring: Mentoring) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.put(`/mentoring/${mentoring.id}`, mentoring, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            const mentorings = this.state.mentorings.map((m: Mentoring) => {
+              let temp = m;
+              if (m.id === response.data.id) {
+                temp = response.data;
+              }
+              return temp;
+            });
+            commit('setMentorings', mentorings);
+            resolve({ type: 'success', data: response.data });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,
