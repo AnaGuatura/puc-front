@@ -142,7 +142,7 @@
       class="confirmation"
     >
       <v-card>
-        <v-card-title>Solicitação</v-card-title>
+        <v-card-title>Solicitação de Mentoria</v-card-title>
         <v-spacer></v-spacer>
         <v-card-subtitle>Mentoria agendada para: {{ scheduleDate.date }}
           (Início: {{ scheduleDate.start }}, Fim: {{ scheduleDate.end }}).
@@ -152,7 +152,6 @@
           para que o mentor possa analisá-lo e retornar assim que possível a solicitação.
         </v-card-text>
         <v-spacer/>
-        <v-card-text>Tem certeza que deseja fazer a solicitação?</v-card-text>
         <v-textarea
           v-model="description"
           class="confirmation__text"

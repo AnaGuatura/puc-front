@@ -1,6 +1,6 @@
 <template>
   <main class="mentoring">
-     <loading :active="loading" />
+    <loading :active="loading" />
     <section class="mentoring__content">
       <div class="mentoring__filters">
         <div
@@ -30,13 +30,9 @@
               </span>
             </div>
             <div class="mentorings__status">
-              <span
-                class="status__circle"
-                :style="`background-color: ${getStatusColor(mentoring.status)}`">
-              </span>
-              <span>
+              <v-chip :color="getStatusColor(mentoring.status)">
                 {{ mentoring.status }}
-              </span>
+              </v-chip>
             </div>
           </header>
           <section class="mentorings__description">
@@ -180,7 +176,7 @@ export default Vue.extend({
     async completeInvitation() {
       const invitation = this.mentoring;
       const today = new Date();
-      if (invitation.dt_final < today) {
+      if (new Date(invitation.dt_final) < today) {
         invitation.status = 'CONCLUÍDA';
         await this.updateMentoring(invitation);
       }
@@ -224,7 +220,7 @@ export default Vue.extend({
           color = '#F6CE8F';
           break;
         case 'CONFIRMADA PELO MENTOR':
-          color = 'lightblue';
+          color = '#FFF';
           break;
         case 'CANCELADA PELO MENTOR':
           color = '#FFC29A';
@@ -315,18 +311,19 @@ export default Vue.extend({
       width: 50%;
       display: flex;
       align-items: center;
-      span {
-        z-index: 5;
-        padding: 0.5%;
-        font-size: 0.9em;
-        margin-left: 5px;
-        font-family: "Roboto", sans-serif;
+      &:last-child {
+        display: flex;
+        justify-content: flex-end;
       }
       &-declined {
         border-top: 1px solid #eee;
         margin-top: 2%;
         padding-top: 2%;
         width: 100%;
+        justify-content: flex-start !important;
+        span {
+          margin-left: 10px;
+        }
       }
     }
     &__description {
@@ -353,8 +350,9 @@ export default Vue.extend({
 
   .status {
     &__circle {
-      width: 2px;
+      width: 5px;
       height: 100%;
+      margin-right: 1%;
     }
   }
 </style>
