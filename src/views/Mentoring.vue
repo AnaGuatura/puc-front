@@ -53,28 +53,28 @@
               left
               v-if="!mentoring.status.includes('CANCELADA')"
             >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                v-bind="attrs"
-                v-on="on"
-                color="grey"
-              >
-                <v-icon>mdi-dots-horizontal</v-icon>
-              </v-btn>
-            </template>
-            <v-list v-if="mentoring.status.toUpperCase() !== 'CONCLUÍDA'">
-              <v-list-item
-                @click="redirectToAction(item.toUpperCase(), mentoring)"
-                v-for="(item, i) in menu" :key="i">
-                <span v-if="item">{{ item }}</span>
-              </v-list-item>
-            </v-list>
-            <v-list v-else>
-              <v-list-item @click="redirectToAction('FEEDBACK')">
-                Conceder Feedback
-              </v-list-item>
-            </v-list>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                  color="grey"
+                >
+                  <v-icon>mdi-dots-horizontal</v-icon>
+                </v-btn>
+              </template>
+              <v-list class="menu" v-if="mentoring.status.toUpperCase() !== 'CONCLUÍDA'">
+                <v-list-item
+                  @click="redirectToAction(item.toUpperCase(), mentoring)"
+                  v-for="(item, i) in menu" :key="i">
+                  <span v-if="item">{{ item }}</span>
+                </v-list-item>
+              </v-list>
+              <v-list class="menu" v-else>
+                <v-list-item @click="redirectToAction('FEEDBACK')">
+                  Conceder Feedback
+                </v-list-item>
+              </v-list>
           </v-menu>
           </footer>
         </v-card>
@@ -122,6 +122,60 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="showFeedback"
+      persistent
+      max-width="390"
+      class="feedback"
+    >
+      <v-card>
+        <v-card-title>Feedback</v-card-title>
+        <v-spacer></v-spacer>
+        <div class="feedback__evaluate">
+          <v-card-text>
+            Nota:
+          </v-card-text>
+          <v-rating
+            class="feedback__rating"
+            v-model="rating"
+            background-color="orange lighten-3"
+            color="orange"
+            medium
+          ></v-rating>
+        </div>
+        <v-card-text>
+          Como foi sua experiência?
+          Informe uma breve descrição sobre o que você achou sobre o mentor
+          e a mentoria realizada.
+        </v-card-text>
+        <v-spacer/>
+        <v-textarea
+          v-model="feedbackText"
+          class="declination__text"
+          outlined color="grey">
+        </v-textarea>
+        <v-card-actions>
+          <v-btn
+            color="grey"
+            outlined
+            @click="showFeedback = !showFeedback; rating = 0; feedbackText = ''"
+          >
+            Cancelar
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            outlined
+            depressed
+            color="deep-orange lighten-2"
+            :loading="loadingAction"
+            :disabled="feedbackText === '' && rating === 0"
+            @click="declineInvitation"
+          >
+            Enviar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </main>
 </template>
 
@@ -150,6 +204,9 @@ export default Vue.extend({
     mentoring: {} as Mentoring,
     mentories: [] as Array<Mentoring>,
     active: 'OPEN',
+    showFeedback: false,
+    rating: 0,
+    feedbackText: '',
   }),
   computed: {
     ...mapGetters(['mentorings']),
@@ -199,8 +256,9 @@ export default Vue.extend({
         case 'EXCLUIR':
           this.cancelInvitation();
           break;
-        case 'CONCEDER FEEDBACK':
-          console.log(action);
+        case 'FEEDBACK':
+          this.showFeedback = true;
+          this.mentoring = mentoring;
           break;
         default:
           this.completeInvitation();
@@ -353,6 +411,23 @@ export default Vue.extend({
       width: 5px;
       height: 100%;
       margin-right: 1%;
+    }
+  }
+  .menu {
+    font-family: "Roboto", sans-serif;
+    font-size: 0.90rem;
+    text-transform: lowercase;
+  }
+
+  .feedback {
+    font-family: "Roboto", sans-serif;
+    &__rating {
+      padding: 0 4%;
+    }
+    &__evaluate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 </style>
