@@ -1,13 +1,13 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+
 import api from './api';
 import {
-  EventInfo,
+  Feedback,
   Mentoring,
   Technology,
   User,
 } from '@/utils/types';
-import { formatEvents } from '@/utils/functions';
 
 Vue.use(Vuex);
 
@@ -21,6 +21,8 @@ export default new Vuex.Store({
     mentorings: [] as Array<Mentoring>,
     error: '',
     user: {},
+    users: [],
+    feedbacks: [] as Array<Feedback>,
   },
   mutations: {
     setError(state, message) {
@@ -44,8 +46,14 @@ export default new Vuex.Store({
     setUser(state, user) {
       state.user = user;
     },
+    setUsers(state, users) {
+      state.users = users;
+    },
     setMentorings(state, mentorings) {
       state.mentorings = mentorings;
+    },
+    setFeedbacks(state, feedbacks) {
+      state.feedbacks = feedbacks;
     },
   },
   actions: {
@@ -106,6 +114,19 @@ export default new Vuex.Store({
         commit('setTechnologies', []);
         throw new Error(e.response.data.error);
       });
+    },
+    async deleteTechnology({ commit }, id: string) {
+      return new Promise((resolve, reject) => {
+        api.delete(`/technologies/${id}`).then((response) => {
+          if (response) {
+            if (response.data) {
+              resolve({ type: 'success', desc: 'Removido.' });
+            }
+          }
+        }).catch((e) => {
+          resolve({ type: 'error', desc: 'Erro ao remover tecnologia.' });
+        });
+      });     
     },
     async createTechnologies({ commit, state }, technologies) {
       return new Promise((resolve, reject) => {
@@ -174,6 +195,16 @@ export default new Vuex.Store({
         throw new Error(e.response.data.error);
       });
     },
+    async getUsers({ commit }) {
+      const token = localStorage.getItem('token');
+      return api.get('/users', { headers: { Authorization: `Bearer ${token}` } }).then((response) => {
+        if (response) {
+          commit('setUsers', response.data);
+        }
+      }).catch((e) => {
+        throw new Error(e.response.data.error);
+      });
+    },
     async updateUser({ commit }, user: User) {
       const token = localStorage.getItem('token');
       return new Promise((resolve, reject) => {
@@ -188,7 +219,7 @@ export default new Vuex.Store({
         });
       });
     },
-    async removeUser({ commit }, user: string) {
+    async removeUser({ commit }, user: User) {
       const token = localStorage.getItem('token');
       return new Promise((resolve, reject) => {
         api.delete(`/users/${user.id}`, {
@@ -254,6 +285,51 @@ export default new Vuex.Store({
         });
       });
     },
+    async createFeedback({ commit }, feedback: Feedback) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.post('/feedback', feedback, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            commit('setFeedbacks', response.data);
+            resolve({ type: 'success', data: response.data });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
+    async getFeedbacks({ commit }, id: string) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.get(`/feedback/${id}`, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            commit('setFeedbacks', response.data);
+            resolve({ type: 'success', data: response.data });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
+    async updateFeedback({ commit }, feedback: Feedback) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.put('/feedback', feedback, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          if (response.data) {
+            commit('setFeedbacks', response.data);
+            resolve({ type: 'success', data: response.data });
+          }
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,
@@ -263,5 +339,7 @@ export default new Vuex.Store({
     technologies: (state) => state.technologies,
     user: (state) => state.user,
     mentorings: (state) => state.mentorings,
+    feedbacks: (state) => state.feedbacks,
+    users: (state) => state.users,
   },
 });

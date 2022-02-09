@@ -29,15 +29,28 @@
       <div class="mentor__add-info">
         <div class="add-info__row">
           <div>E-mail: <span>{{ user.email }}</span></div>
-          <div>Visualizações no perfil (último mês): <span>{{ user.email }}</span></div>
+          <div>Formas de Pagamento aceitas:
+            <v-chip v-for="payment in user.payments" :key="payment.id">
+              {{ payment.payment.type }}
+            </v-chip>
+          </div>
         </div>
         <div class="add-info__row">
           <div>Telefone: <span>{{ user.phone }}</span></div>
-          <div>Mentorias solicitadas até o momento: <span>{{ user.phone }}</span></div>
+          <div>Mentorias solicitadas: <span>{{ events.length }}</span></div>
         </div>
         <div class="add-info__row">
           <div>Mentor desde: <span>{{ formatData(user.created_at) }}</span></div>
-          <div>Média de Avaliação: <span>{{ formatData(user.created_at) }}</span></div>
+          <div>Média de Avaliação:
+            <v-rating
+              readonly
+              class="feedback__rating"
+              :value="getRating()"
+              background-color="orange lighten-3"
+              color="orange"
+              medium
+            ></v-rating>
+          </div>
         </div>
       </div>
     </section>
@@ -69,6 +82,20 @@
     </section>
     <section class="mentor__feedbacks" v-show="!loadingMentorData">
       <h1>Feedbacks Recebidos</h1>
+      <div class="feedback" v-for="feedback in user.feedbacks" :key="feedback.id">
+        <div class="feedback__title">
+          <span>{{ formatDateToPtBR(feedback.dt_create) }}</span>
+          <v-rating
+              readonly
+              class="feedback__rating"
+              v-model="feedback.rating"
+              background-color="orange lighten-3"
+              color="orange"
+              medium
+            ></v-rating>
+        </div>
+        <div class="feedback__text"> {{ feedback.feedback_text }} </div>
+      </div>
     </section>
     <v-dialog
       v-model="showCalendar"
@@ -187,8 +214,18 @@ import { mapActions, mapGetters } from 'vuex';
 import moment from 'moment';
 
 import loading from '@/components/Loading.vue';
-import { EventInfo, Mentoring, ScheduleInfo } from '@/utils/types';
-import { convertData, formatEvents, getUserInfo } from '@/utils/functions';
+import {
+  EventInfo,
+  Feedback,
+  Mentoring,
+  ScheduleInfo,
+} from '@/utils/types';
+import {
+  convertData,
+  formatEvents,
+  getUserInfo,
+  formatDateToPtBR,
+} from '@/utils/functions';
 
 export default Vue.extend({
   name: 'mentor',
@@ -271,6 +308,18 @@ export default Vue.extend({
     showEvent() {
       this.showScheduleInfo = !this.showScheduleInfo;
     },
+    getRating() {
+      const totalFeeds = this.user.feedbacks.length;
+      const sum = this.user.feedbacks.reduce((acc: number, curr: Feedback) => {
+        let average = acc;
+        average = (average || 0) + curr.rating;
+        return average;
+      }, 0);
+
+      console.log(sum, totalFeeds);
+
+      return sum / totalFeeds;
+    },
   },
   async mounted() {
     this.mentorId = this.$route.params.id;
@@ -282,7 +331,6 @@ export default Vue.extend({
     mentorings: {
       handler(curr) {
         if (curr) this.events = formatEvents(curr);
-        console.log(this.events);
       },
       deep: true,
       immediate: true,
@@ -384,6 +432,20 @@ export default Vue.extend({
   .confirmation {
     &__text {
       padding: 5%;
+    }
+  }
+
+  .feedback {
+    display: flex;
+    flex-direction: column;
+    margin: 2% 0;
+    &__title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2%;
+      font-size: 0.90rem;
+      color: #858080;
     }
   }
 </style>

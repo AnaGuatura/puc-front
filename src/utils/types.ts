@@ -72,3 +72,14 @@ export interface Mentoring {
     status: string;
 }
 
+export interface Feedback {
+    id: string;
+    mentor: string;
+    student: string;
+    dt_create: string;
+    feedback_text: string;
+    rating: number;
+    status: string;
+    user: string;
+}
+

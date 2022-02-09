@@ -1,7 +1,7 @@
 <template>
   <main class="mentoring">
     <loading :active="loading" />
-    <section class="mentoring__content">
+    <section class="mentoring__content" v-if="!loading">
       <div class="mentoring__filters">
         <div
           :class="{ active : active === 'OPEN'}"
@@ -71,7 +71,7 @@
                 </v-list-item>
               </v-list>
               <v-list class="menu" v-else>
-                <v-list-item @click="redirectToAction('FEEDBACK')">
+                <v-list-item @click="redirectToAction('FEEDBACK', mentoring)">
                   Conceder Feedback
                 </v-list-item>
               </v-list>
@@ -169,7 +169,7 @@
             color="deep-orange lighten-2"
             :loading="loadingAction"
             :disabled="feedbackText === '' && rating === 0"
-            @click="declineInvitation"
+            @click="sendFeedback"
           >
             Enviar
           </v-btn>
@@ -212,7 +212,7 @@ export default Vue.extend({
     ...mapGetters(['mentorings']),
   },
   methods: {
-    ...mapActions(['getMentoring', 'updateMentoring']),
+    ...mapActions(['getMentoring', 'updateMentoring', 'createFeedback']),
     formatDateToPtBR(date: Date) {
       return moment(date).format('DD/MM/YYYY HH:mm');
     },
@@ -306,6 +306,19 @@ export default Vue.extend({
       this.active = 'CANCELED';
       this.mentories = this.mentorings
         .filter((m: Mentoring) => m.status === 'CANCELADA PELO MENTOR' || m.status === 'CANCELADA PELO MENTORADO');
+    },
+    async sendFeedback() {
+      this.loadingAction = true;
+      const feedback = {
+        mentor: this.mentoring.mentor.id,
+        student: getUserInfo().id,
+        feedback_text: this.feedbackText,
+        rating: this.rating,
+        mentoring: this.mentoring.id,
+      };
+      await this.createFeedback(feedback);
+      this.loadingAction = false;
+      this.showFeedback = false;
     },
   },
   async mounted() {
