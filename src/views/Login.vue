@@ -7,14 +7,14 @@
           <v-text-field
             dense
             label="E-mail"
-            v-model="user.email"
+            v-model="credentials.email"
             solo
           ></v-text-field>
           <label>Senha</label>
           <v-text-field
             dense
             label="Senha"
-            v-model="user.password"
+            v-model="credentials.password"
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
             :type="show ? 'text' : 'password'"
             @click:append="show = !show"
@@ -68,7 +68,7 @@ import { Credentials } from '../utils/types';
 export default Vue.extend({
   name: 'login',
   data: () => ({
-    user: {
+    credentials: {
       email: '',
       password: '',
     } as Credentials,
@@ -78,7 +78,7 @@ export default Vue.extend({
     error: '',
   }),
   computed: {
-    ...mapGetters(['isAuthenticated']),
+    ...mapGetters(['isAuthenticated', 'user']),
   },
   methods: {
     ...mapActions(['login', 'loginGoogle']),
@@ -86,17 +86,24 @@ export default Vue.extend({
       this.error = '';
       this.loading = true;
       await this.login({
-        email: this.user.email,
-        password: this.user.password,
+        email: this.credentials.email,
+        password: this.credentials.password,
       }).catch((error) => {
         this.loading = false;
         this.error = error;
       });
 
       if (this.isAuthenticated) {
-        this.loading = false;
-        this.$router.push({ path: '/home' });
+        if (this.user.role === 'mentorado') {
+          this.$router.push({ path: '/home' });
+        } else if (this.user.role === 'mentor') {
+          this.$router.push({ path: '/mentoring' });
+        } else {
+          this.$router.push({ path: '/statistics' });
+        }
       }
+
+      this.loading = false;
     },
     authenticateWithGoogle() {
       this.loadingGoogle = true;

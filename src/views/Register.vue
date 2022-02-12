@@ -74,7 +74,7 @@
             </template>
             <v-date-picker
               v-model="date"
-              max="2021-NaN-NaN"
+              max="2022-NaN-NaN"
               no-title
               @input="menu = false"
             ></v-date-picker>
@@ -148,7 +148,7 @@
                       <v-autocomplete
                         dense
                         v-model="skill.technology.name"
-                        :items="listTechnologies.filter((f) => f.area === skill.technology.area)"
+                        :items="listTechnologies.filter((f) => f.area.id === skill.technology.area)"
                         :loading="false"
                         color="white"
                         hide-no-data
@@ -467,7 +467,10 @@ export default Vue.extend({
         this.areas.forEach((area: Area) => {
           const object = {
             id: '0',
-            area: area.id,
+            area: {
+              id: area.id,
+              name: area.name,
+            },
             name: 'OUTRA',
           };
 

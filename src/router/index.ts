@@ -6,6 +6,7 @@ import Account from '../views/Account.vue';
 import Mentoring from '../views/Mentoring.vue';
 import User from '../views/Users.vue';
 import Technologies from '../views/Technologies.vue';
+import Statistics from '../views/Statistics.vue';
 import store from '../store';
 
 Vue.use(VueRouter);
@@ -74,6 +75,10 @@ const routes: Array<RouteConfig> = [
       {
         path: '/technologies',
         component: Technologies,
+      },
+      {
+        path: '/statistics',
+        component: Statistics,
       },
     ],
   },

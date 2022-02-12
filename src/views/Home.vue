@@ -1,8 +1,6 @@
 <template>
   <div class="home">
-    <div class="home__content" v-if="user.role === 'admin'">Em desenvolvimento.</div>
-    <div class="home__content" v-else-if="user.role === 'mentor'">Em desenvolvimento.</div>
-    <div class="home__content" v-else>
+    <div class="home__content">
       <search-mentor></search-mentor>
     </div>
   </div>

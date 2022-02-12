@@ -52,8 +52,8 @@ export default Vue.extend({
     menu: {
       admin: [
         {
-          name: 'Minha Conta',
-          path: '/account',
+          name: 'Estatísticas',
+          path: '/statistics',
         },
         {
           name: 'Feedbacks',
@@ -70,7 +70,7 @@ export default Vue.extend({
       ],
       mentor: [
         {
-          name: 'Minha Conta',
+          name: 'Meus Dados',
           path: '/account',
         },
         {
@@ -84,7 +84,7 @@ export default Vue.extend({
       ],
       mentorado: [
         {
-          name: 'Minha Conta',
+          name: 'Meus Dados',
           path: '/account',
         },
         {
@@ -129,6 +129,7 @@ $medium: 768px;
 .profile {
   display: flex;
   font-family: 'Raleway', sans-serif;
+  height: 100%;
   .profile__content {
     display: flex;
     width: 100%;

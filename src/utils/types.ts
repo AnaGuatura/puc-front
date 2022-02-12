@@ -18,7 +18,7 @@ export interface Credentials {
 
 export interface Technology {
     id?: string;
-    area: string;
+    area: Area;
     name: string;
     other?: string;
 }

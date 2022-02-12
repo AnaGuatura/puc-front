@@ -1,7 +1,7 @@
 <template>
   <main class="account">
     <loading :active="loading" />
-    <section class="account__content">
+    <section class="account__content" v-if="!loading">
       <h1>Dados Cadastrais</h1>
       <label>Nome</label>
       <v-text-field
@@ -91,8 +91,8 @@ import Vue from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
 import moment from 'moment';
-import { User } from '@/utils/types';
 import Loading from '@/components/Loading.vue';
+import { User } from '@/utils/types';
 
 export default Vue.extend({
   name: 'account',
@@ -100,7 +100,7 @@ export default Vue.extend({
     Loading,
   },
   data: () => ({
-    userInfo: {},
+    userInfo: {} as User,
     loading: false,
     updatingUser: false,
     excludingUser: false,
@@ -131,8 +131,9 @@ export default Vue.extend({
     async updateUserInfo() {
       this.message = '';
       this.updatingUser = true;
-      const updated = await this.updateUser(this.userInfo).catch((error) => error);
-      console.log(updated);
+
+      const updated = await this.updateUser(this.userInfo).catch((error: Error) => error);
+
       if (updated.type !== 'success') {
         this.message = updated;
         this.messageType = 'error';
@@ -145,8 +146,9 @@ export default Vue.extend({
     async removeUserInfo() {
       this.excludingUser = true;
       this.message = '';
-      const deleted = await this.removeUser(this.userInfo).catch((error) => error);
-      console.log(deleted);
+
+      const deleted = await this.removeUser(this.userInfo).catch((error: Error) => error);
+
       if (deleted.type !== 'success') {
         this.message = deleted;
         this.messageType = 'error';

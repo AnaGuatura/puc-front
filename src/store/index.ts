@@ -23,6 +23,7 @@ export default new Vuex.Store({
     user: {},
     users: [],
     feedbacks: [] as Array<Feedback>,
+    statistics: [],
   },
   mutations: {
     setError(state, message) {
@@ -54,6 +55,9 @@ export default new Vuex.Store({
     },
     setFeedbacks(state, feedbacks) {
       state.feedbacks = feedbacks;
+    },
+    setStatistics(state, statistics) {
+      state.statistics = statistics;
     },
   },
   actions: {
@@ -116,17 +120,18 @@ export default new Vuex.Store({
       });
     },
     async deleteTechnology({ commit }, id: string) {
+      const token = localStorage.getItem('token');
       return new Promise((resolve, reject) => {
-        api.delete(`/technologies/${id}`).then((response) => {
-          if (response) {
+        api.delete(`/technologies/${id}`,
+          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } })
+          .then((response) => {
             if (response.data) {
               resolve({ type: 'success', desc: 'Removido.' });
             }
-          }
-        }).catch((e) => {
-          resolve({ type: 'error', desc: 'Erro ao remover tecnologia.' });
-        });
-      });     
+          }).catch((e) => {
+            reject(e.response.data);
+          });
+      });
     },
     async createTechnologies({ commit, state }, technologies) {
       return new Promise((resolve, reject) => {
@@ -263,6 +268,19 @@ export default new Vuex.Store({
         });
       });
     },
+    async getStatistics({ commit }) {
+      const token = localStorage.getItem('token');
+      return new Promise((resolve, reject) => {
+        api.get('/statistics', {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        }).then((response) => {
+          resolve({ type: 'success', data: response.data });
+          commit('setStatistics', response.data);
+        }).catch((e) => {
+          reject(e.response.data.error);
+        });
+      });
+    },
     async updateMentoring({ commit }, mentoring: Mentoring) {
       const token = localStorage.getItem('token');
       return new Promise((resolve, reject) => {
@@ -341,5 +359,6 @@ export default new Vuex.Store({
     mentorings: (state) => state.mentorings,
     feedbacks: (state) => state.feedbacks,
     users: (state) => state.users,
+    statistics: (state) => state.statistics,
   },
 });

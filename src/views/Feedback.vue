@@ -37,6 +37,9 @@
           </v-btn>
         </footer>
       </v-card>
+      <span v-if="feedbacks.length === 0">
+        Nenhum feedback {{ user.role === 'mentor' ? 'recebido ' : 'concedido '}} até o momento.
+      </span>
     </section>
     <v-dialog
       v-model="showConfirmationDialog"
@@ -50,7 +53,7 @@
         <v-card-text>Tem certeza que deseja remover o feedback?</v-card-text>
         <v-card-actions>
           <v-btn
-            color="grey"
+            color="deep-orange lighten-2"
             outlined
             @click="showConfirmationDialog = !showConfirmationDialog"
           >
@@ -58,9 +61,9 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            outlined
-            depressed
+            dense
             color="deep-orange lighten-2"
+            depressed
             :loading="loadingAction"
             @click="removeFeedback()"
           >
@@ -144,8 +147,8 @@ export default Vue.extend({
     }
     &__text {
       margin-top: 2%;
-      font-family: "Roboto", sans-serif;
       font-size: 0.90rem;
+      font-family: 'Roboto', sans-serif;
     }
     &__remove {
       display: flex;

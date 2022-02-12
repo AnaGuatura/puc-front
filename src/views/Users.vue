@@ -17,7 +17,10 @@
         solo
       ></v-select>
     </section>
-    <section class="users__content">
+    <div class="users__loading" v-if="loading">
+      <loading :active="loading"/>
+    </div>
+    <section class="users__content" v-else>
       <v-card class="user" v-for="user in tempUsers" :key="user.id">
         <header class="user__title">
           <span> Nome: {{ user.name }} {{ user.lastname }}</span>
@@ -49,7 +52,7 @@
         <v-card-text>Tem certeza que deseja remover o usuário?</v-card-text>
         <v-card-actions>
           <v-btn
-            color="grey"
+            color="deep-orange lighten-2"
             outlined
             @click="showConfirmationDialog = !showConfirmationDialog"
           >
@@ -57,9 +60,9 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            outlined
-            depressed
+            dense
             color="deep-orange lighten-2"
+            depressed
             :loading="loadingAction"
             @click="removeUserById()"
           >
@@ -76,9 +79,13 @@ import Vue from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 
 import { User } from '@/utils/types';
+import loading from '@/components/Loading.vue';
 
 export default Vue.extend({
   name: 'users',
+  components: {
+    loading,
+  },
   data: () => ({
     loading: false,
     showConfirmationDialog: false,
@@ -101,6 +108,7 @@ export default Vue.extend({
       this.loadingAction = true;
       await this.removeUser(this.user);
       await this.getUsers();
+      this.tempUsers = this.users;
       this.loadingAction = false;
       this.showConfirmationDialog = false;
     },
@@ -110,9 +118,9 @@ export default Vue.extend({
     },
   },
   async mounted() {
-    this.tempUsers = this.users;
     this.loading = true;
     await this.getUsers();
+    this.tempUsers = this.users;
     this.loading = false;
   },
 });
@@ -121,6 +129,7 @@ export default Vue.extend({
 <style lang="scss" scoped>
   main {
     padding: 0 5%;
+    height: 100%;
     h1 {
       text-align: left;
     }
@@ -132,6 +141,12 @@ export default Vue.extend({
       display: flex;
       gap: 2%;
     }
+    &__loading {
+      margin-top: 20%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   .user {
@@ -139,8 +154,8 @@ export default Vue.extend({
     margin-bottom: 2%;
     display: flex;
     flex-direction: column;
-    font-family: "Roboto", sans-serif;
     font-size: 0.90rem;
+    font-family: 'Roboto', sans-serif;
     &__title {
       display: flex;
       flex-direction: column;

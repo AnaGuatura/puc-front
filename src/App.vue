@@ -27,12 +27,12 @@
       </router-link>
       <nav>
         <ul>
-          <router-link :to="'/home'">
+          <router-link :to="'/home'" v-if="user.role === 'mentorado'">
             <li>
               Home
             </li>
           </router-link>
-          <router-link :to="'/account'">
+          <router-link :to="user.role === 'admin' ? '/statistics' : '/account'">
             <li>
               Perfil
             </li>
@@ -58,10 +58,8 @@ import { mapGetters } from 'vuex';
 export default Vue.extend({
   name: 'App',
   computed: {
-    ...mapGetters(['isAuthenticated']),
+    ...mapGetters(['isAuthenticated', 'user']),
   },
-  data: () => ({
-  }),
 });
 </script>
 
@@ -173,6 +171,10 @@ export default Vue.extend({
     .v-btn__content {
       color: rgba(0, 0, 0, 0.87) !important;
     }
+  }
+
+  .apexcharts-menu-icon {
+    display: none !important;
   }
 
 </style>

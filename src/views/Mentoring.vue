@@ -19,7 +19,13 @@
             CANCELADAS
         </div>
       </div>
-      <div class="mentorings">
+      <span v-if="!loading && mentories.length === 0">
+        Nenhuma solicitação de mentoria
+          {{ active === 'OPEN' ? 'em aberto' :
+            ((active === 'CANCELED') ? 'cancelada' : 'concluída') }}
+        até o momento.
+      </span>
+      <div class="mentorings" v-if="!loading && mentories.length > 0">
         <v-card class="mentorings__event" v-for="mentoring in mentories" :key="mentoring.id">
           <header>
             <div class="mentorings__status">
@@ -51,7 +57,7 @@
             <v-menu
               bottom
               left
-              v-if="!mentoring.status.includes('CANCELADA')"
+              v-if="(!mentoring.status.includes('CANCELADA'))"
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -63,7 +69,9 @@
                   <v-icon>mdi-dots-horizontal</v-icon>
                 </v-btn>
               </template>
-              <v-list class="menu" v-if="mentoring.status.toUpperCase() !== 'CONCLUÍDA'">
+              <v-list
+                class="menu"
+                v-if="mentoring.status.toUpperCase() !== 'CONCLUÍDA'">
                 <v-list-item
                   @click="redirectToAction(item.toUpperCase(), mentoring)"
                   v-for="(item, i) in menu" :key="i">
@@ -71,7 +79,9 @@
                 </v-list-item>
               </v-list>
               <v-list class="menu" v-else>
-                <v-list-item @click="redirectToAction('FEEDBACK', mentoring)">
+                <v-list-item
+                  @click="redirectToAction('FEEDBACK', mentoring)"
+                  :disabled="user.role === 'mentor'">
                   Conceder Feedback
                 </v-list-item>
               </v-list>
@@ -222,6 +232,8 @@ export default Vue.extend({
       invitation.status = 'CONFIRMADA PELO MENTOR';
       await this.updateMentoring(invitation);
       this.loadingAction = false;
+      this.mentories = this.mentorings
+        .filter((m: Mentoring) => m.status === 'CONFIRMADA PELO MENTOR' || m.status === 'AGUARDANDO CONFIRMAÇÃO DO MENTOR');
     },
     async declineInvitation() {
       const invitation = this.mentoring;
@@ -229,6 +241,8 @@ export default Vue.extend({
       invitation.decline_text = this.declinationText;
       await this.updateMentoring(invitation);
       this.showDeclinationModal = !this.showDeclinationModal;
+      this.mentories = this.mentorings
+        .filter((m: Mentoring) => m.status === 'CONFIRMADA PELO MENTOR' || m.status === 'AGUARDANDO CONFIRMAÇÃO DO MENTOR');
     },
     async completeInvitation() {
       const invitation = this.mentoring;
@@ -237,11 +251,30 @@ export default Vue.extend({
         invitation.status = 'CONCLUÍDA';
         await this.updateMentoring(invitation);
       }
+      this.mentories = this.mentorings
+        .filter((m: Mentoring) => m.status === 'CONFIRMADA PELO MENTOR' || m.status === 'AGUARDANDO CONFIRMAÇÃO DO MENTOR');
     },
     async cancelInvitation() {
       const invitation = this.mentoring;
       invitation.status = 'CANCELADA PELO MENTORADO';
       await this.updateMentoring(invitation);
+      this.mentories = this.mentorings
+        .filter((m: Mentoring) => m.status === 'CONFIRMADA PELO MENTOR' || m.status === 'AGUARDANDO CONFIRMAÇÃO DO MENTOR');
+    },
+    async sendFeedback() {
+      this.loadingAction = true;
+      const feedback = {
+        mentor: this.mentoring.mentor.id,
+        student: getUserInfo().id,
+        feedback_text: this.feedbackText,
+        rating: this.rating,
+        mentoring: this.mentoring.id,
+      };
+      await this.createFeedback(feedback);
+      this.loadingAction = false;
+      this.showFeedback = false;
+      this.mentories = this.mentorings
+        .filter((m: Mentoring) => m.status === 'CONCLUÍDA');
     },
     redirectToAction(action: string, mentoring: Mentoring) {
       this.mentoring = mentoring;
@@ -253,7 +286,7 @@ export default Vue.extend({
           this.showDeclinationModal = true;
           this.mentoring = mentoring;
           break;
-        case 'EXCLUIR':
+        case 'CANCELAR':
           this.cancelInvitation();
           break;
         case 'FEEDBACK':
@@ -261,6 +294,7 @@ export default Vue.extend({
           this.mentoring = mentoring;
           break;
         default:
+          this.mentoring = mentoring;
           this.completeInvitation();
       }
     },
@@ -268,7 +302,7 @@ export default Vue.extend({
       if (this.user.role === 'mentor') {
         this.menu = ['Aceitar', 'Rejeitar', 'Concluir'];
       } else {
-        this.menu = ['Excluir', 'Concluir'];
+        this.menu = ['Cancelar', 'Concluir'];
       }
     },
     getStatusColor(status: string) {
@@ -278,7 +312,7 @@ export default Vue.extend({
           color = '#F6CE8F';
           break;
         case 'CONFIRMADA PELO MENTOR':
-          color = '#FFF';
+          color = '#a7c3f1';
           break;
         case 'CANCELADA PELO MENTOR':
           color = '#FFC29A';
@@ -306,19 +340,6 @@ export default Vue.extend({
       this.active = 'CANCELED';
       this.mentories = this.mentorings
         .filter((m: Mentoring) => m.status === 'CANCELADA PELO MENTOR' || m.status === 'CANCELADA PELO MENTORADO');
-    },
-    async sendFeedback() {
-      this.loadingAction = true;
-      const feedback = {
-        mentor: this.mentoring.mentor.id,
-        student: getUserInfo().id,
-        feedback_text: this.feedbackText,
-        rating: this.rating,
-        mentoring: this.mentoring.id,
-      };
-      await this.createFeedback(feedback);
-      this.loadingAction = false;
-      this.showFeedback = false;
     },
   },
   async mounted() {
@@ -409,7 +430,7 @@ export default Vue.extend({
       border-top: 1px solid #eee;
       margin-top: 2%;
       padding-top: 2%;
-      font-family: "Roboto", sans-serif;
+      // font-family: "Roboto", sans-serif;
     }
   }
 
@@ -433,7 +454,7 @@ export default Vue.extend({
   }
 
   .feedback {
-    font-family: "Roboto", sans-serif;
+    // font-family: "Roboto", sans-serif;
     &__rating {
       padding: 0 4%;
     }

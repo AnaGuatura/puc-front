@@ -96,6 +96,7 @@
         </div>
         <div class="feedback__text"> {{ feedback.feedback_text }} </div>
       </div>
+      <span v-if="user.feedbacks.length === 0"> Nenhum feedback recebido até o momento.</span>
     </section>
     <v-dialog
       v-model="showCalendar"
@@ -224,7 +225,6 @@ import {
   convertData,
   formatEvents,
   getUserInfo,
-  formatDateToPtBR,
 } from '@/utils/functions';
 
 export default Vue.extend({
@@ -316,9 +316,10 @@ export default Vue.extend({
         return average;
       }, 0);
 
-      console.log(sum, totalFeeds);
-
       return sum / totalFeeds;
+    },
+    formatDateToPtBR(date: Date) {
+      return moment(date).format('DD/MM/YYYY HH:mm');
     },
   },
   async mounted() {
@@ -402,6 +403,9 @@ export default Vue.extend({
     }
     &__feedbacks {
       margin-top: 2.5%;
+      span {
+        margin-top: 2.5%;
+      }
     }
   }
 
