@@ -264,7 +264,7 @@ export default Vue.extend({
     async sendFeedback() {
       this.loadingAction = true;
       const feedback = {
-        mentor: this.mentoring.mentor.id,
+        mentor: (this.mentoring.mentor as any).id,
         student: getUserInfo().id,
         feedback_text: this.feedbackText,
         rating: this.rating,

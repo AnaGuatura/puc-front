@@ -446,7 +446,7 @@ export default Vue.extend({
         },
         price: null,
         experience_time: null,
-      } as Skill;
+      } as any;
 
       this.skills.push(skill);
     },

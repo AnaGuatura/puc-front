@@ -143,7 +143,7 @@ export default Vue.extend({
   data: () => ({
     loading: false,
     loadingCleaner: false,
-    selectedArea: {} as Area,
+    selectedArea: {} as any,
     selectedTechnology: {} as Technology,
     mentors: [] as Array<User>,
     message: '',

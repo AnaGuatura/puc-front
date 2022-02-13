@@ -110,7 +110,7 @@ export default Vue.extend({
   }),
   computed: {
     ...mapGetters(['user']),
-    dateFormatted() {
+    dateFormatted(): string {
       return moment(this.userInfo.birthday).format('DD/MM/YYYY');
     },
   },
@@ -159,7 +159,7 @@ export default Vue.extend({
       this.excludingUser = false;
     },
   },
-  async created() {
+  async mounted() {
     this.loading = true;
     const user = localStorage.getItem('user');
     if (user) await this.getUserById(JSON.parse(user).id);
