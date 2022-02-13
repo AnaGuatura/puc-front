@@ -27,7 +27,7 @@
       </router-link>
       <nav>
         <ul>
-          <router-link :to="'/home'" v-if="user.role === 'mentorado'">
+          <router-link :to="'/home'" v-if="showHome">
             <li>
               Home
             </li>
@@ -54,11 +54,24 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapGetters } from 'vuex';
+import { getUserInfo } from '@/utils/functions';
 
 export default Vue.extend({
   name: 'App',
   computed: {
     ...mapGetters(['isAuthenticated', 'user']),
+  },
+  data: () => ({
+    showHome: false,
+  }),
+  watch: {
+    user: {
+      handler(curr) {
+        if (curr) this.showHome = getUserInfo().role === 'mentorado';
+      },
+      immediate: true,
+      deep: true,
+    },
   },
 });
 </script>
