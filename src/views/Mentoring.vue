@@ -64,7 +64,7 @@
                   icon
                   v-bind="attrs"
                   v-on="on"
-                  color="grey"
+                  id="icon-dots"
                 >
                   <v-icon>mdi-dots-horizontal</v-icon>
                 </v-btn>
@@ -454,7 +454,6 @@ export default Vue.extend({
   }
 
   .feedback {
-    // font-family: "Roboto", sans-serif;
     &__rating {
       padding: 0 4%;
     }
@@ -463,5 +462,9 @@ export default Vue.extend({
       align-items: center;
       justify-content: center;
     }
+  }
+
+  #icon-dots {
+    color: grey !important;
   }
 </style>
